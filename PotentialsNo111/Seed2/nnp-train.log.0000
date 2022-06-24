@@ -1,0 +1,889 @@
+
+*** SETUP: MPI ****************************************************************
+
+Number of processors: 1
+Process 1 of 1 (rank 0): olympecomp357.bullx
+*******************************************************************************
+
+*******************************************************************************
+
+WELCOME TO n²p², A SOFTWARE PACKAGE FOR NEURAL NETWORK POTENTIALS!
+------------------------------------------------------------------
+
+n²p² version      : v2.1.1-18-g23890d4
+------------------------------------------------------------
+Git branch        : master
+Git revision      : 23890d43e24cd78af2c2b1249b69ae542fe65854
+Compile date/time : Apr 21 2021 09:28:03
+------------------------------------------------------------
+
+Features/Flags:
+------------------------------------------------------------
+Symmetry function groups     : enabled
+Symmetry function cache      : enabled
+Timing function available    : available
+Asymmetric polynomial SFs    : available
+SF low neighbor number check : enabled
+SF derivative memory layout  : reduced
+MPI explicitly disabled      : no
+------------------------------------------------------------
+
+Please cite the following papers when publishing results obtained with n²p²:
+-------------------------------------------------------------------------------
+ * General citation for n²p² and the LAMMPS interface:
+
+ Singraber, A.; Behler, J.; Dellago, C.
+ Library-Based LAMMPS Implementation of High-Dimensional
+ Neural Network Potentials.
+ J. Chem. Theory Comput. 2019 15 (3), 1827–1840.
+ https://doi.org/10.1021/acs.jctc.8b00770
+-------------------------------------------------------------------------------
+ * Additionally, if you use the NNP training features of n²p²:
+
+ Singraber, A.; Morawietz, T.; Behler, J.; Dellago, C.
+ Parallel Multistream Training of High-Dimensional Neural
+ Network Potentials.
+ J. Chem. Theory Comput. 2019, 15 (5), 3075–3092.
+ https://doi.org/10.1021/acs.jctc.8b01092
+-------------------------------------------------------------------------------
+ * Additionally, if polynomial symmetry functions are used:
+
+ Bircher, M. P.; Singraber, A.; Dellago, C.
+ Improved Description of Atomic Environments Using Low-Cost
+ Polynomial Functions with Compact Support.
+ arXiv:2010.14414 [cond-mat, physics:physics] 2020.
+ https://arxiv.org/abs/2010.14414
+*******************************************************************************
+
+*** SETUP: SETTINGS FILE ******************************************************
+
+Settings file name: input.nn
+Read 139 lines.
+Found 75 lines with keywords.
+This settings file defines a short-range only NNP.
+*******************************************************************************
+
+*** SETUP: NORMALIZATION ******************************************************
+
+Data set normalization is not used.
+*******************************************************************************
+
+*** SETUP: ELEMENT MAP ********************************************************
+
+Number of element strings found: 1
+Element  0: Au ( 79)
+*******************************************************************************
+
+*** SETUP: ELEMENTS ***********************************************************
+
+Number of elements is consistent: 1
+Atomic energy offsets per element:
+Element  0:   0.00000000E+00
+Energy offsets are automatically subtracted from reference energies.
+*******************************************************************************
+
+*** SETUP: CUTOFF FUNCTIONS ***************************************************
+
+Parameter alpha for inner cutoff: 0.000000
+Inner cutoff = Symmetry function cutoff * alpha
+Equal cutoff function type for all symmetry functions:
+CutoffFunction::CT_POLY2 (6)
+x := (r - rc * alpha) / (rc - rc * alpha)
+f(x) = ((15 - 6x)x - 10)x^3 + 1
+*******************************************************************************
+
+*** SETUP: SYMMETRY FUNCTIONS *************************************************
+
+Abbreviations:
+--------------
+ind .... Symmetry function index.
+ec ..... Central atom element.
+tp ..... Symmetry function type.
+sbtp ... Symmetry function subtype (e.g. cutoff type).
+e1 ..... Neighbor 1 element.
+e2 ..... Neighbor 2 element.
+eta .... Gaussian width eta.
+rs/rl... Shift distance of Gaussian or left cutoff radius for polynomial.
+angl.... Left cutoff angle for polynomial.
+angr.... Right cutoff angle for polynomial.
+la ..... Angle prefactor lambda.
+zeta ... Angle term exponent zeta.
+rc ..... Cutoff radius / right cutoff radius for polynomial.
+a ...... Free parameter alpha (e.g. cutoff alpha).
+ln ..... Line number in settings file.
+
+Short range atomic symmetry functions element Au :
+-------------------------------------------------------------------------------------------------
+ ind ec tp sbtp e1 e2       eta      rs/rl         rc   angl   angr la zeta    a    ln
+-------------------------------------------------------------------------------------------------
+   1 Au  2  ct6 Au    6.428E-03 -5.000E-01  6.000E+00                       0.00   105
+   2 Au  2  ct6 Au    1.036E-02 -5.000E-01  6.000E+00                       0.00   107
+   3 Au  2  ct6 Au    1.286E-02 -5.000E-01  6.000E+00                       0.00   106
+   4 Au  2  ct6 Au    5.142E-02 -5.000E-01  6.000E+00                       0.00   108
+   5 Au  2  ct6 Au    1.028E-01 -5.000E-01  6.000E+00                       0.00   109
+   6 Au  2  ct6 Au    2.057E-01 -5.000E-01  6.000E+00                       0.00   110
+   7 Au  2  ct6 Au    4.114E-01 -5.000E-01  6.000E+00                       0.00   111
+   8 Au  2  ct6 Au    8.228E-01 -5.000E-01  6.000E+00                       0.00   112
+   9 Au  9  ct6 Au Au 3.570E-04  0.000E+00  6.000E+00                1  2.0 0.00   118
+  10 Au  9  ct6 Au Au 5.357E-03  0.000E+00  6.000E+00                1  2.0 0.00   119
+  11 Au  9  ct6 Au Au 1.036E-02  0.000E+00  6.000E+00                1  2.0 0.00   120
+  12 Au  9  ct6 Au Au 1.536E-02  0.000E+00  6.000E+00               -1  2.0 0.00   121
+  13 Au  9  ct6 Au Au 2.036E-02  0.000E+00  6.000E+00               -1  2.0 0.00   122
+  14 Au  9  ct6 Au Au 2.536E-02  0.000E+00  6.000E+00               -1  2.0 0.00   123
+  15 Au  9  ct6 Au Au 3.036E-02  0.000E+00  6.000E+00                1  3.0 0.00   124
+  16 Au  9  ct6 Au Au 3.536E-02  0.000E+00  6.000E+00                1  3.0 0.00   125
+  17 Au  9  ct6 Au Au 4.036E-02  0.000E+00  6.000E+00                1  3.0 0.00   126
+  18 Au  9  ct6 Au Au 4.536E-02  0.000E+00  6.000E+00               -1  3.0 0.00   127
+  19 Au  9  ct6 Au Au 5.036E-02  0.000E+00  6.000E+00               -1  3.0 0.00   128
+  20 Au  9  ct6 Au Au 5.536E-02  0.000E+00  6.000E+00               -1  3.0 0.00   129
+  21 Au  9  ct6 Au Au 7.536E-02  0.000E+00  6.000E+00               -1  4.0 0.00   133
+  22 Au  9  ct6 Au Au 8.036E-02  0.000E+00  6.000E+00               -1  4.0 0.00   134
+  23 Au  9  ct6 Au Au 8.536E-02  0.000E+00  6.000E+00               -1  4.0 0.00   135
+  24 Au  9  ct6 Au Au 6.036E-01  0.000E+00  6.000E+00                1  4.0 0.00   130
+  25 Au  9  ct6 Au Au 6.536E-01  0.000E+00  6.000E+00                1  4.0 0.00   131
+  26 Au  9  ct6 Au Au 7.036E-01  0.000E+00  6.000E+00                1  4.0 0.00   132
+-------------------------------------------------------------------------------------------------
+Minimum cutoff radius for element Au: 6.000000
+Maximum cutoff radius (global)      : 6.000000
+*******************************************************************************
+
+*** SETUP: SYMMETRY FUNCTION MEMORY *******************************************
+
+Symmetry function derivatives memory table for element Au :
+-------------------------------------------------------------------------------
+Relevant symmetry functions for neighbors with element:
+- Au:   26 of   26 (100.0 %)
+-------------------------------------------------------------------------------
+*******************************************************************************
+
+*** SETUP: SYMMETRY FUNCTION CACHE ********************************************
+
+Element Au: in total 2 caches, used 26.00 times on average.
+*******************************************************************************
+
+*** SETUP: SYMMETRY FUNCTION GROUPS *******************************************
+
+Abbreviations:
+--------------
+ind .... Symmetry function index.
+ec ..... Central atom element.
+tp ..... Symmetry function type.
+sbtp ... Symmetry function subtype (e.g. cutoff type).
+e1 ..... Neighbor 1 element.
+e2 ..... Neighbor 2 element.
+eta .... Gaussian width eta.
+rs/rl... Shift distance of Gaussian or left cutoff radius for polynomial.
+angl.... Left cutoff angle for polynomial.
+angr.... Right cutoff angle for polynomial.
+la ..... Angle prefactor lambda.
+zeta ... Angle term exponent zeta.
+rc ..... Cutoff radius / right cutoff radius for polynomial.
+a ...... Free parameter alpha (e.g. cutoff alpha).
+ln ..... Line number in settings file.
+mi ..... Member index.
+sfi .... Symmetry function index.
+e ...... Recalculate exponential term.
+
+Short range atomic symmetry function groups element Au :
+----------------------------------------------------------------------------------------------------------
+ ind ec tp sbtp e1 e2       eta      rs/rl         rc   angl   angr la zeta    a    ln   mi  sfi e
+----------------------------------------------------------------------------------------------------------
+   1 Au  2  ct6 Au            *          *  6.000E+00                       0.00     *    *    *  
+   -  -  -    -  -    6.428E-03 -5.000E-01          -                          -   105    1    1  
+   -  -  -    -  -    1.036E-02 -5.000E-01          -                          -   107    2    2  
+   -  -  -    -  -    1.286E-02 -5.000E-01          -                          -   106    3    3  
+   -  -  -    -  -    5.142E-02 -5.000E-01          -                          -   108    4    4  
+   -  -  -    -  -    1.028E-01 -5.000E-01          -                          -   109    5    5  
+   -  -  -    -  -    2.057E-01 -5.000E-01          -                          -   110    6    6  
+   -  -  -    -  -    4.114E-01 -5.000E-01          -                          -   111    7    7  
+   -  -  -    -  -    8.228E-01 -5.000E-01          -                          -   112    8    8  
+   2 Au  9  ct6 Au Au         *          *  6.000E+00                *    * 0.00     *    *    * *
+   -  -  -    -  -  - 3.570E-04  0.000E+00          -                1  2.0    -   118    1    9 1
+   -  -  -    -  -  - 5.357E-03  0.000E+00          -                1  2.0    -   119    2   10 1
+   -  -  -    -  -  - 1.036E-02  0.000E+00          -                1  2.0    -   120    3   11 1
+   -  -  -    -  -  - 1.536E-02  0.000E+00          -               -1  2.0    -   121    4   12 1
+   -  -  -    -  -  - 2.036E-02  0.000E+00          -               -1  2.0    -   122    5   13 1
+   -  -  -    -  -  - 2.536E-02  0.000E+00          -               -1  2.0    -   123    6   14 1
+   -  -  -    -  -  - 3.036E-02  0.000E+00          -                1  3.0    -   124    7   15 1
+   -  -  -    -  -  - 3.536E-02  0.000E+00          -                1  3.0    -   125    8   16 1
+   -  -  -    -  -  - 4.036E-02  0.000E+00          -                1  3.0    -   126    9   17 1
+   -  -  -    -  -  - 4.536E-02  0.000E+00          -               -1  3.0    -   127   10   18 1
+   -  -  -    -  -  - 5.036E-02  0.000E+00          -               -1  3.0    -   128   11   19 1
+   -  -  -    -  -  - 5.536E-02  0.000E+00          -               -1  3.0    -   129   12   20 1
+   -  -  -    -  -  - 7.536E-02  0.000E+00          -               -1  4.0    -   133   13   21 1
+   -  -  -    -  -  - 8.036E-02  0.000E+00          -               -1  4.0    -   134   14   22 1
+   -  -  -    -  -  - 8.536E-02  0.000E+00          -               -1  4.0    -   135   15   23 1
+   -  -  -    -  -  - 6.036E-01  0.000E+00          -                1  4.0    -   130   16   24 1
+   -  -  -    -  -  - 6.536E-01  0.000E+00          -                1  4.0    -   131   17   25 1
+   -  -  -    -  -  - 7.036E-01  0.000E+00          -                1  4.0    -   132   18   26 1
+----------------------------------------------------------------------------------------------------------
+*******************************************************************************
+
+*** SETUP: NEURAL NETWORKS ****************************************************
+
+Normalize neurons (all elements): 0
+-------------------------------------------------------------------------------
+Atomic short range NN for element Au :
+Number of weights    :   1300
+Number of biases     :     51
+Number of connections:   1351
+Architecture       26   25   25    1
+-------------------------------------------------------------------------------
+   1   G   t   t   l
+   2   G   t   t    
+   3   G   t   t    
+   4   G   t   t    
+   5   G   t   t    
+   6   G   t   t    
+   7   G   t   t    
+   8   G   t   t    
+   9   G   t   t    
+  10   G   t   t    
+  11   G   t   t    
+  12   G   t   t    
+  13   G   t   t    
+  14   G   t   t    
+  15   G   t   t    
+  16   G   t   t    
+  17   G   t   t    
+  18   G   t   t    
+  19   G   t   t    
+  20   G   t   t    
+  21   G   t   t    
+  22   G   t   t    
+  23   G   t   t    
+  24   G   t   t    
+  25   G   t   t    
+  26   G            
+-------------------------------------------------------------------------------
+*******************************************************************************
+
+*** SETUP: SYMMETRY FUNCTION SCALING ******************************************
+
+Equal scaling type for all symmetry functions:
+Scaling type::ST_SCALESIGMA (4)
+Gs = Smin + (Smax - Smin) * (G - Gmean) / Gsigma
+Smin = 0.000000
+Smax = 1.000000
+Symmetry function scaling statistics from file: scaling.data
+-------------------------------------------------------------------------------
+
+Abbreviations:
+--------------
+ind ..... Symmetry function index.
+min ..... Minimum symmetry function value.
+max ..... Maximum symmetry function value.
+mean .... Mean symmetry function value.
+sigma ... Standard deviation of symmetry function values.
+sf ...... Scaling factor for derivatives.
+Smin .... Desired minimum scaled symmetry function value.
+Smax .... Desired maximum scaled symmetry function value.
+t ....... Scaling type.
+
+Scaling data for symmetry functions element Au :
+-------------------------------------------------------------------------------
+ ind       min       max      mean     sigma        sf  Smin  Smax t
+-------------------------------------------------------------------------------
+   1  9.85E-01  7.64E+00  6.68E+00  8.33E-01  1.20E+00  0.00  1.00 4
+   2  9.30E-01  7.23E+00  6.31E+00  7.87E-01  1.27E+00  0.00  1.00 4
+   3  8.96E-01  6.99E+00  6.09E+00  7.60E-01  1.32E+00  0.00  1.00 4
+   4  5.27E-01  4.22E+00  3.57E+00  4.51E-01  2.22E+00  0.00  1.00 4
+   5  2.65E-01  2.26E+00  1.83E+00  2.37E-01  4.21E+00  0.00  1.00 4
+   6  7.52E-02  7.09E-01  5.19E-01  7.18E-02  1.39E+01  0.00  1.00 4
+   7  7.58E-03  7.96E-02  4.67E-02  7.86E-03  1.27E+02  0.00  1.00 4
+   8  4.93E-05  1.48E-03  4.54E-04  1.42E-04  7.04E+03  0.00  1.00 4
+   9  4.85E-01  1.94E+01  1.51E+01  3.01E+00  3.32E-01  0.00  1.00 4
+  10  4.26E-01  1.74E+01  1.35E+01  2.69E+00  3.72E-01  0.00  1.00 4
+  11  3.75E-01  1.56E+01  1.20E+01  2.40E+00  4.16E-01  0.00  1.00 4
+  12  1.45E-02  1.69E+01  1.29E+01  3.02E+00  3.31E-01  0.00  1.00 4
+  13  1.26E-02  1.52E+01  1.16E+01  2.72E+00  3.68E-01  0.00  1.00 4
+  14  1.10E-02  1.38E+01  1.04E+01  2.45E+00  4.09E-01  0.00  1.00 4
+  15  1.82E-01  7.09E+00  5.37E+00  1.07E+00  9.38E-01  0.00  1.00 4
+  16  1.60E-01  6.38E+00  4.81E+00  9.58E-01  1.04E+00  0.00  1.00 4
+  17  1.42E-01  5.75E+00  4.32E+00  8.62E-01  1.16E+00  0.00  1.00 4
+  18  1.38E-03  6.99E+00  5.14E+00  1.23E+00  8.10E-01  0.00  1.00 4
+  19  1.20E-03  6.35E+00  4.64E+00  1.12E+00  8.96E-01  0.00  1.00 4
+  20  1.04E-03  5.78E+00  4.20E+00  1.01E+00  9.89E-01  0.00  1.00 4
+  21  1.49E-04  3.19E+00  2.26E+00  5.52E-01  1.81E+00  0.00  1.00 4
+  22  1.29E-04  2.92E+00  2.05E+00  5.02E-01  1.99E+00  0.00  1.00 4
+  23  1.11E-04  2.66E+00  1.86E+00  4.57E-01  2.19E+00  0.00  1.00 4
+  24  1.97E-07  4.15E-04  1.28E-04  4.39E-05  2.28E+04  0.00  1.00 4
+  25  6.13E-08  1.99E-04  5.59E-05  2.04E-05  4.89E+04  0.00  1.00 4
+  26  1.91E-08  9.84E-05  2.45E-05  9.60E-06  1.04E+05  0.00  1.00 4
+-------------------------------------------------------------------------------
+*******************************************************************************
+
+*** SETUP: SYMMETRY FUNCTION STATISTICS ***************************************
+
+Equal symmetry function statistics for all elements.
+Collect min/max/mean/sigma                        : 0
+Collect extrapolation warnings                    : 0
+Write extrapolation warnings immediately to stderr: 0
+Halt on any extrapolation warning                 : 0
+*******************************************************************************
+
+*** SETUP: RANDOM NUMBER GENERATOR ********************************************
+
+Random number generator seed: 2222222
+Seed for rank 0: 2222222
+Seed for global RNG: 3479703466
+*******************************************************************************
+
+*** STRUCTURE DISTRIBUTION ****************************************************
+
+Reading configurations from data file: input.data.
+Total number of structures: 75
+Number of structures per processor: 75
+Distributed 75 structures, 0 bytes (0.00 MiB) transferred.
+Number of local structures: 75
+*******************************************************************************
+
+*** DEFINE TRAINING/TEST SETS *************************************************
+
+Desired test set ratio      : 0.100000
+Training/test split of data set for property "energy":
+- Total    patterns : 75
+- Training patterns : 68
+- Test     patterns : 7
+- Test set fraction : 0.093333
+Training/test split of data set for property "force":
+- Total    patterns : 29040
+- Training patterns : 26172
+- Test     patterns : 2868
+- Test set fraction : 0.098760
+*******************************************************************************
+
+*** WRITE TRAINING/TEST SETS **************************************************
+
+Writing training/test set to files:
+ - train.data
+ - test.data
+*******************************************************************************
+
+*** WEIGHT INITIALIZATION *****************************************************
+
+Setting up short-range neural networks:
+Initial weights selected randomly in interval [-1.000000, 1.000000).
+Weights modified accoring to Glorot Bengio scheme.
+Biases set to zero.
+*******************************************************************************
+
+*** SETUP: TRAINING ***********************************************************
+
+Forces will be used for training.
+Force update weight:   1.00E+01
+Training will act on "short" neural networks.
+Weight update via Kalman filter selected: updaterType::UT_KF (1)
+Parallel training (rank 0 updates) selected: ParallelMode::PM_TRAIN_RK0 (0)
+Per-task Jacobian selected: JacobianMode::JM_TASK (1)
+One Jacobi matrix row per MPI task is stored, within each task gradients are summed up.
+Combined updater for all elements selected: UpdateStrategy::US_COMBINED (0)
+Number of weight updaters    : 1
+Total fit parameters         : 1351
+Global selection mode settings:
+- Selection mode starting with epoch 0:
+  Update candidates chosen randomly above RMSE threshold: SelectionMode::SM_THRESHOLD (2)
+- RMSE selection trials   : 3
+Selection mode settings specific to property "energy":
+- RMSE selection threshold: 1.00 * RMSE
+Selection mode settings specific to property "force":
+- RMSE selection threshold: 1.00 * RMSE
+-------------------------------------------------------------------------------
+Symmetry function memory is reused (HIGH MEMORY USAGE!).
+Training will be stopped after 100 epochs.
+Property "energy" comparison files will be written every 1 epochs.
+Property "force" comparison files will be written every 1 epochs.
+Weight files will be written every 1 epochs.
+Neuron statistics files will be written every 1 epochs.
+Training log with update information will be written to: train-log.out.
+-------------------------------------------------------------------------------
+Update plan for property "energy":
+- Per-task batch size                          : 1
+- Fraction of patterns used per epoch          : 1.0753
+- Updates per epoch                            : 73
+- Patterns used per update (rank   0 / global) :          1 / 1
+----------------------------------------------
+Update plan for property "force":
+- Per-task batch size                          : 1
+- Fraction of patterns used per epoch          : 0.0225
+- Updates per epoch                            : 589
+- Patterns used per update (rank   0 / global) :          1 / 1
+----------------------------------------------
+Energy to force ratio                        :      1 :   8.1
+Energy to force percentages                  :  11.0% :  89.0%
+-------------------------------------------------------------------------------
+Allocating memory for energy error vector and Jacobian.
+Updater   0:
+ - Error    size: 1
+ - Jacobian size: 1351
+----------------------------------------------
+Allocating memory for force error vector and Jacobian.
+Updater   0:
+ - Error    size: 1
+ - Jacobian size: 1351
+----------------------------------------------
+-------------------------------------------------------------------------------
+qtau is divided by number of projected updates per epoch.
+etatau is divided by number of projected updates per epoch.
+-------------------------------------------------------------------------------
+Combined weight updater:
+-------------------------------------------------------------------------------
+KalmanType::KT_STANDARD (0)
+sizeState       = 1351
+sizeObservation = 1
+epsilon         =   1.0000E-02
+q0              =   1.0000E-02
+qtau            =   3.4773E-03
+qmin            =   1.0000E-06
+eta0            =   1.0000E-02
+etatau          =   3.4773E-03
+etamax          =   1.0000E+00
+OpenMP threads used: 1
+Note: During training loop the actual observation
+      size corresponds to error vector size:
+sizeObservation = 1 (energy updates)
+sizeObservation = 1 (force updates)
+-------------------------------------------------------------------------------
+TIMING Finished setup: 0.25 seconds.
+*******************************************************************************
+
+*** CALCULATE NEIGHBOR LISTS **************************************************
+
+Calculating neighbor lists for all structures.
+Cutoff radius for neighbor lists: 6.000000
+-------------------------------------------------------------------------------
+TIMING Finished neighbor lists: 0.40 seconds.
+*******************************************************************************
+
+*** TRAINING LOOP *************************************************************
+
+The training loop output covers different errors, update and
+timing information. The following quantities are organized
+according to the matrix scheme below:
+-------------------------------------------------------------------
+ep ........ Epoch.
+E_count ... Number of energy updates.
+E_train ... RMSE of training energies per atom.
+E_test .... RMSE of test     energies per atom.
+E_pt ...... Percentage of time for energy updates w.r.t. to t_train.
+F_count ... Number of force updates.
+F_train ... RMSE of training forces.
+F_test .... RMSE of test     forces.
+F_pt ...... Percentage of time for force updates w.r.t. to t_train.
+count ..... Total number of updates.
+train ..... Percentage of time for training.
+error ..... Percentage of time for error calculation.
+other ..... Percentage of time for other purposes.
+epoch ..... Total time for this epoch (seconds).
+total ..... Total time for all epochs (seconds).
+-------------------------------------------------------------------
+energy     ep  E_count       E_train        E_test    E_pt
+force      ep  F_count       F_train        F_test    F_pt
+timing     ep    count  train  error  other      epoch      total
+-------------------------------------------------------------------
+ENERGY      0        0   2.73528E+00   2.91645E+00     0.0
+FORCE       0        0   4.71262E+00   4.58779E+00     0.0
+TIMING      0        0    0.0   99.9    0.1      12.74      12.74
+------
+ENERGY      1       73   3.80042E-03   2.28212E-03     1.5
+FORCE       1      589   8.17930E-02   9.13886E-02    98.5
+TIMING      1      662   98.4    1.5    0.1      31.25      43.99
+------
+ENERGY      2       73   4.59836E-03   6.75860E-03     1.4
+FORCE       2      589   4.59457E-02   4.75243E-02    98.6
+TIMING      2      662   98.5    1.4    0.0      31.17      75.15
+------
+ENERGY      3       73   1.27613E-03   1.02122E-03     1.5
+FORCE       3      589   3.47743E-02   3.85165E-02    98.5
+TIMING      3      662   98.5    1.4    0.0      30.69     105.85
+------
+ENERGY      4       73   1.60562E-03   1.94624E-03     1.4
+FORCE       4      589   3.75421E-02   4.29086E-02    98.6
+TIMING      4      662   98.5    1.5    0.0      30.26     136.11
+------
+ENERGY      5       73   2.14431E-03   9.47123E-04     1.4
+FORCE       5      589   3.11650E-02   3.26355E-02    98.6
+TIMING      5      662   98.5    1.4    0.0      30.45     166.55
+------
+ENERGY      6       73   1.32977E-03   5.44394E-04     1.5
+FORCE       6      589   2.50086E-02   2.75075E-02    98.5
+TIMING      6      662   97.9    2.1    0.0      30.34     196.89
+------
+ENERGY      7       73   9.89287E-04   5.61759E-04     1.5
+FORCE       7      589   2.31703E-02   3.01721E-02    98.5
+TIMING      7      662   98.5    1.5    0.0      29.91     226.80
+------
+ENERGY      8       73   8.62633E-04   1.24618E-03     1.4
+FORCE       8      589   2.18759E-02   2.72027E-02    98.6
+TIMING      8      662   98.5    1.5    0.0      29.79     256.59
+------
+ENERGY      9       73   1.22345E-03   7.20911E-04     1.4
+FORCE       9      589   2.08132E-02   2.57190E-02    98.6
+TIMING      9      662   98.2    1.5    0.2      29.89     286.48
+------
+ENERGY     10       73   9.13486E-04   7.77439E-04     1.5
+FORCE      10      589   2.11272E-02   2.60884E-02    98.5
+TIMING     10      662   98.4    1.5    0.1      29.78     316.26
+------
+ENERGY     11       73   9.86321E-04   7.54531E-04     1.4
+FORCE      11      589   2.27832E-02   2.51625E-02    98.6
+TIMING     11      662   98.5    1.5    0.0      29.75     346.01
+------
+ENERGY     12       73   2.23933E-03   3.81430E-03     1.4
+FORCE      12      589   2.25081E-02   2.76977E-02    98.6
+TIMING     12      662   98.5    1.5    0.0      29.82     375.83
+------
+ENERGY     13       73   4.84877E-04   6.94641E-04     1.5
+FORCE      13      589   2.15156E-02   2.51377E-02    98.5
+TIMING     13      662   98.5    1.5    0.0      30.10     405.93
+------
+ENERGY     14       73   1.76520E-03   2.07680E-03     1.4
+FORCE      14      589   2.21309E-02   2.62064E-02    98.6
+TIMING     14      662   98.5    1.4    0.0      29.76     435.69
+------
+ENERGY     15       73   1.60083E-03   1.10746E-03     1.5
+FORCE      15      589   2.05886E-02   2.60004E-02    98.5
+TIMING     15      662   98.5    1.4    0.1      29.82     465.51
+------
+ENERGY     16       73   7.98763E-04   1.58746E-03     1.5
+FORCE      16      589   2.14874E-02   2.47715E-02    98.5
+TIMING     16      662   98.4    1.5    0.0      29.77     495.28
+------
+ENERGY     17       73   1.05779E-03   2.03646E-03     1.4
+FORCE      17      589   2.12597E-02   2.53861E-02    98.6
+TIMING     17      662   98.4    1.5    0.0      29.63     524.91
+------
+ENERGY     18       73   8.22163E-04   5.89490E-04     1.5
+FORCE      18      589   1.97310E-02   2.44595E-02    98.5
+TIMING     18      662   98.5    1.5    0.0      29.70     554.60
+------
+ENERGY     19       73   9.77891E-04   1.08903E-03     1.4
+FORCE      19      589   2.03287E-02   2.46967E-02    98.6
+TIMING     19      662   97.5    2.5    0.0      29.92     584.53
+------
+ENERGY     20       73   5.26139E-04   7.23191E-04     1.4
+FORCE      20      589   2.01642E-02   2.49553E-02    98.6
+TIMING     20      662   98.5    1.5    0.0      29.77     614.30
+------
+ENERGY     21       73   6.05271E-04   4.66135E-04     1.4
+FORCE      21      589   1.91053E-02   2.30340E-02    98.6
+TIMING     21      662   98.4    1.6    0.0      29.46     643.76
+------
+ENERGY     22       73   7.59845E-04   6.73425E-04     1.4
+FORCE      22      589   2.21442E-02   2.57843E-02    98.6
+TIMING     22      662   96.6    3.3    0.0      30.03     673.79
+------
+ENERGY     23       73   1.63267E-03   1.94434E-03     1.4
+FORCE      23      589   2.00743E-02   2.57951E-02    98.6
+TIMING     23      662   98.5    1.4    0.0      29.92     703.71
+------
+ENERGY     24       73   1.55413E-03   1.75624E-03     1.5
+FORCE      24      589   1.94514E-02   2.39159E-02    98.5
+TIMING     24      662   98.4    1.6    0.0      29.36     733.07
+------
+ENERGY     25       73   8.52998E-04   9.57479E-04     1.5
+FORCE      25      589   2.05734E-02   2.46348E-02    98.5
+TIMING     25      662   98.4    1.5    0.1      29.69     762.75
+------
+ENERGY     26       73   1.90617E-03   2.22378E-03     1.4
+FORCE      26      589   1.90322E-02   2.33846E-02    98.6
+TIMING     26      662   98.3    1.6    0.0      29.51     792.26
+------
+ENERGY     27       73   1.04929E-03   1.11818E-03     1.5
+FORCE      27      589   2.04718E-02   2.47857E-02    98.5
+TIMING     27      662   98.4    1.6    0.0      29.60     821.86
+------
+ENERGY     28       73   6.33571E-04   6.32462E-04     1.5
+FORCE      28      589   1.91816E-02   2.33883E-02    98.5
+TIMING     28      662   98.4    1.6    0.0      29.54     851.41
+------
+ENERGY     29       73   9.06182E-04   4.77974E-04     1.4
+FORCE      29      589   2.00505E-02   2.49603E-02    98.6
+TIMING     29      662   98.0    2.0    0.1      29.92     881.33
+------
+ENERGY     30       73   8.77030E-04   7.74262E-04     1.5
+FORCE      30      589   1.90193E-02   2.32363E-02    98.5
+TIMING     30      662   98.5    1.5    0.0      29.62     910.95
+------
+ENERGY     31       73   7.31986E-04   8.15147E-04     1.5
+FORCE      31      589   2.00185E-02   2.37125E-02    98.5
+TIMING     31      662   98.5    1.5    0.0      29.49     940.45
+------
+ENERGY     32       73   1.04704E-03   7.53883E-04     1.4
+FORCE      32      589   1.92928E-02   2.41845E-02    98.6
+TIMING     32      662   98.4    1.5    0.1      29.65     970.09
+------
+ENERGY     33       73   7.27846E-04   3.32734E-04     1.5
+FORCE      33      589   1.86449E-02   2.34264E-02    98.5
+TIMING     33      662   98.3    1.6    0.0      29.58     999.67
+------
+ENERGY     34       73   1.05110E-03   1.21936E-03     1.4
+FORCE      34      589   2.04050E-02   2.48834E-02    98.6
+TIMING     34      662   98.4    1.6    0.1      29.46    1029.13
+------
+ENERGY     35       73   1.38439E-03   1.78784E-03     1.5
+FORCE      35      589   2.04457E-02   2.43111E-02    98.5
+TIMING     35      662   98.3    1.6    0.0      29.94    1059.07
+------
+ENERGY     36       73   1.38556E-03   1.38631E-03     1.5
+FORCE      36      589   2.17350E-02   2.69330E-02    98.5
+TIMING     36      662   98.5    1.5    0.0      29.80    1088.87
+------
+ENERGY     37       73   1.82601E-03   2.70910E-03     1.5
+FORCE      37      589   1.92915E-02   2.43158E-02    98.5
+TIMING     37      662   98.5    1.5    0.0      29.94    1118.81
+------
+ENERGY     38       73   1.04768E-03   8.60845E-04     1.5
+FORCE      38      589   1.89831E-02   2.38728E-02    98.5
+TIMING     38      662   97.7    2.3    0.0      29.86    1148.67
+------
+ENERGY     39       73   1.24792E-03   7.89409E-04     1.4
+FORCE      39      589   1.93885E-02   2.47314E-02    98.6
+TIMING     39      662   98.5    1.5    0.0      29.52    1178.20
+------
+ENERGY     40       73   5.73010E-04   5.22695E-04     1.5
+FORCE      40      589   1.90057E-02   2.29350E-02    98.5
+TIMING     40      662   98.2    1.7    0.0      29.42    1207.61
+------
+ENERGY     41       73   8.97010E-04   1.01934E-03     1.4
+FORCE      41      589   1.97277E-02   2.41690E-02    98.6
+TIMING     41      662   98.4    1.6    0.0      29.70    1237.31
+------
+ENERGY     42       73   1.83561E-03   2.80495E-03     1.4
+FORCE      42      589   2.11833E-02   2.53966E-02    98.6
+TIMING     42      662   98.5    1.5    0.0      29.44    1266.75
+------
+ENERGY     43       73   1.07042E-03   7.92612E-04     1.5
+FORCE      43      589   1.98982E-02   2.37323E-02    98.5
+TIMING     43      662   98.4    1.6    0.0      29.80    1296.55
+------
+ENERGY     44       73   1.34561E-03   2.35980E-03     1.5
+FORCE      44      589   2.17346E-02   2.49077E-02    98.5
+TIMING     44      662   98.4    1.6    0.0      29.64    1326.19
+------
+ENERGY     45       73   5.97059E-04   5.42843E-04     1.5
+FORCE      45      589   1.82026E-02   2.27552E-02    98.5
+TIMING     45      662   98.5    1.5    0.0      29.85    1356.04
+------
+ENERGY     46       73   5.79109E-04   7.88737E-04     1.4
+FORCE      46      589   1.92038E-02   2.31409E-02    98.6
+TIMING     46      662   98.2    1.7    0.0      29.55    1385.59
+------
+ENERGY     47       73   9.59410E-04   1.06725E-03     1.4
+FORCE      47      589   1.87300E-02   2.31395E-02    98.6
+TIMING     47      662   98.4    1.5    0.0      29.45    1415.04
+------
+ENERGY     48       73   6.16102E-04   3.62684E-04     1.5
+FORCE      48      589   1.84690E-02   2.22805E-02    98.5
+TIMING     48      662   98.4    1.5    0.0      29.49    1444.53
+------
+ENERGY     49       73   6.98128E-04   7.03639E-04     1.4
+FORCE      49      589   1.90730E-02   2.38263E-02    98.6
+TIMING     49      662   98.4    1.5    0.0      29.49    1474.02
+------
+ENERGY     50       73   7.34332E-04   9.32993E-04     1.4
+FORCE      50      589   1.99882E-02   2.38391E-02    98.6
+TIMING     50      662   98.5    1.5    0.1      29.45    1503.47
+------
+ENERGY     51       73   1.46700E-03   1.13454E-03     1.5
+FORCE      51      589   1.88174E-02   2.28450E-02    98.5
+TIMING     51      662   98.5    1.4    0.0      29.58    1533.05
+------
+ENERGY     52       73   6.64348E-04   1.10168E-03     1.5
+FORCE      52      589   1.84603E-02   2.20932E-02    98.5
+TIMING     52      662   97.3    2.6    0.0      30.19    1563.24
+------
+ENERGY     53       73   5.97999E-04   7.50127E-04     1.4
+FORCE      53      589   1.89515E-02   2.35011E-02    98.6
+TIMING     53      662   98.5    1.5    0.0      29.41    1592.64
+------
+ENERGY     54       73   7.85004E-04   8.75481E-04     1.4
+FORCE      54      589   1.87645E-02   2.27916E-02    98.6
+TIMING     54      662   98.5    1.5    0.0      29.62    1622.27
+------
+ENERGY     55       73   1.32247E-03   1.48867E-03     1.4
+FORCE      55      589   1.84943E-02   2.23808E-02    98.6
+TIMING     55      662   98.5    1.5    0.0      29.59    1651.86
+------
+ENERGY     56       73   6.85681E-04   4.97675E-04     1.5
+FORCE      56      589   1.81018E-02   2.24034E-02    98.5
+TIMING     56      662   98.5    1.5    0.0      29.06    1680.92
+------
+ENERGY     57       73   1.49211E-03   1.73341E-03     1.4
+FORCE      57      589   1.90672E-02   2.40107E-02    98.6
+TIMING     57      662   98.5    1.5    0.0      29.29    1710.21
+------
+ENERGY     58       73   8.50811E-04   7.58579E-04     1.5
+FORCE      58      589   1.86585E-02   2.32527E-02    98.5
+TIMING     58      662   97.5    2.4    0.0      29.80    1740.02
+------
+ENERGY     59       73   6.08067E-04   5.50043E-04     1.4
+FORCE      59      589   1.83170E-02   2.26878E-02    98.6
+TIMING     59      662   98.4    1.5    0.0      29.37    1769.39
+------
+ENERGY     60       73   7.17309E-04   8.70052E-04     1.4
+FORCE      60      589   1.87669E-02   2.25744E-02    98.6
+TIMING     60      662   98.3    1.4    0.3      29.67    1799.06
+------
+ENERGY     61       73   7.30837E-04   8.25854E-04     1.4
+FORCE      61      589   1.83829E-02   2.22982E-02    98.6
+TIMING     61      662   98.3    1.6    0.1      29.42    1828.48
+------
+ENERGY     62       73   8.89228E-04   9.51174E-04     1.5
+FORCE      62      589   1.84104E-02   2.28675E-02    98.5
+TIMING     62      662   95.3    3.1    1.5      30.53    1859.01
+------
+ENERGY     63       73   9.55937E-04   9.55881E-04     1.4
+FORCE      63      589   1.88876E-02   2.22750E-02    98.6
+TIMING     63      662   98.3    1.6    0.0      29.79    1888.80
+------
+ENERGY     64       73   1.05858E-03   1.21068E-03     1.5
+FORCE      64      589   1.86648E-02   2.25894E-02    98.5
+TIMING     64      662   98.3    1.7    0.0      29.38    1918.18
+------
+ENERGY     65       73   5.69012E-04   7.79288E-04     1.5
+FORCE      65      589   1.83159E-02   2.21151E-02    98.5
+TIMING     65      662   98.0    2.0    0.0      29.78    1947.96
+------
+ENERGY     66       73   1.02790E-03   6.95856E-04     1.4
+FORCE      66      589   1.85352E-02   2.22793E-02    98.6
+TIMING     66      662   98.4    1.5    0.2      29.70    1977.66
+------
+ENERGY     67       73   1.36989E-03   2.19005E-03     1.5
+FORCE      67      589   1.85468E-02   2.27636E-02    98.5
+TIMING     67      662   98.4    1.5    0.1      29.89    2007.55
+------
+ENERGY     68       73   7.11376E-04   7.38617E-04     1.6
+FORCE      68      589   1.97324E-02   2.40436E-02    98.4
+TIMING     68      662   98.5    1.5    0.0      29.58    2037.13
+------
+ENERGY     69       73   5.31519E-04   4.59742E-04     1.5
+FORCE      69      589   1.85064E-02   2.26866E-02    98.5
+TIMING     69      662   98.5    1.5    0.0      30.05    2067.18
+------
+ENERGY     70       73   4.93196E-04   5.88734E-04     1.4
+FORCE      70      589   1.85522E-02   2.26182E-02    98.6
+TIMING     70      662   98.5    1.4    0.0      29.73    2096.91
+------
+ENERGY     71       73   1.35972E-03   1.05453E-03     1.4
+FORCE      71      589   2.06763E-02   2.62926E-02    98.6
+TIMING     71      662   98.1    1.9    0.1      29.47    2126.38
+------
+ENERGY     72       73   6.99255E-04   6.16402E-04     1.5
+FORCE      72      589   1.88071E-02   2.28460E-02    98.5
+TIMING     72      662   98.4    1.6    0.0      29.98    2156.36
+------
+ENERGY     73       73   8.03812E-04   7.43861E-04     1.4
+FORCE      73      589   1.92461E-02   2.28829E-02    98.6
+TIMING     73      662   98.1    1.9    0.0      29.58    2185.94
+------
+ENERGY     74       73   5.01675E-04   5.63204E-04     1.5
+FORCE      74      589   1.96153E-02   2.41567E-02    98.5
+TIMING     74      662   98.5    1.5    0.0      29.73    2215.67
+------
+ENERGY     75       73   1.09465E-03   6.08375E-04     1.3
+FORCE      75      589   1.87396E-02   2.31564E-02    98.7
+TIMING     75      662   98.5    1.4    0.0      30.48    2246.14
+------
+ENERGY     76       73   9.57317E-04   7.88433E-04     1.5
+FORCE      76      589   1.87198E-02   2.26730E-02    98.5
+TIMING     76      662   98.2    1.8    0.0      29.70    2275.84
+------
+ENERGY     77       73   1.32993E-03   1.45471E-03     1.5
+FORCE      77      589   1.95041E-02   2.37406E-02    98.5
+TIMING     77      662   98.4    1.5    0.0      29.79    2305.63
+------
+ENERGY     78       73   5.18597E-04   5.89406E-04     1.5
+FORCE      78      589   1.89691E-02   2.31188E-02    98.5
+TIMING     78      662   98.0    1.7    0.3      30.09    2335.72
+------
+ENERGY     79       73   6.13521E-04   4.50393E-04     1.4
+FORCE      79      589   1.89947E-02   2.31540E-02    98.6
+TIMING     79      662   98.5    1.5    0.0      29.59    2365.31
+------
+ENERGY     80       73   6.27966E-04   4.73480E-04     1.8
+FORCE      80      589   1.85818E-02   2.26326E-02    98.2
+TIMING     80      662   98.5    1.5    0.0      29.66    2394.97
+------
+ENERGY     81       73   6.34876E-04   8.71148E-04     1.4
+FORCE      81      589   1.78149E-02   2.22044E-02    98.6
+TIMING     81      662   98.5    1.5    0.0      29.32    2424.29
+------
+ENERGY     82       73   8.69459E-04   7.50621E-04     1.5
+FORCE      82      589   1.83844E-02   2.22272E-02    98.5
+TIMING     82      662   98.4    1.5    0.0      29.26    2453.54
+------
+ENERGY     83       73   5.93350E-04   4.94764E-04     1.5
+FORCE      83      589   1.85265E-02   2.31322E-02    98.5
+TIMING     83      662   98.4    1.5    0.0      29.55    2483.10
+------
+ENERGY     84       73   9.76824E-04   8.61219E-04     1.5
+FORCE      84      589   1.81867E-02   2.21397E-02    98.5
+TIMING     84      662   98.4    1.5    0.0      29.43    2512.53
+------
+ENERGY     85       73   6.94983E-04   9.94032E-04     1.5
+FORCE      85      589   1.89869E-02   2.25711E-02    98.5
+TIMING     85      662   98.3    1.7    0.0      29.64    2542.16
+------
+ENERGY     86       73   4.59197E-04   4.65966E-04     1.4
+FORCE      86      589   1.87089E-02   2.24736E-02    98.6
+TIMING     86      662   98.5    1.5    0.0      29.58    2571.74
+------
+ENERGY     87       73   5.17487E-04   4.91919E-04     1.3
+FORCE      87      589   1.83367E-02   2.30842E-02    98.7
+TIMING     87      662   98.5    1.5    0.0      29.46    2601.21
+------
+ENERGY     88       73   6.69771E-04   5.15896E-04     1.4
+FORCE      88      589   1.81800E-02   2.28563E-02    98.6
+TIMING     88      662   98.5    1.5    0.0      29.34    2630.55
+------
+ENERGY     89       73   1.04966E-03   7.92878E-04     1.4
+FORCE      89      589   1.81320E-02   2.26753E-02    98.6
+TIMING     89      662   98.5    1.4    0.0      29.75    2660.30
+------
+ENERGY     90       73   6.92934E-04   5.89150E-04     1.5
+FORCE      90      589   1.83753E-02   2.22374E-02    98.5
+TIMING     90      662   98.5    1.4    0.0      29.71    2690.01
+------
+ENERGY     91       73   8.60924E-04   9.69547E-04     1.4
+FORCE      91      589   1.89978E-02   2.30286E-02    98.6
+TIMING     91      662   98.5    1.5    0.0      29.35    2719.37
+------
+ENERGY     92       73   9.49416E-04   9.55985E-04     1.5
+FORCE      92      589   1.86419E-02   2.24937E-02    98.5
+TIMING     92      662   96.7    3.0    0.3      30.40    2749.77
+------
+ENERGY     93       73   7.76980E-04   4.30520E-04     1.5
+FORCE      93      589   1.83359E-02   2.26674E-02    98.5
+TIMING     93      662   98.5    1.5    0.0      29.59    2779.36
+------
+ENERGY     94       73   6.20994E-04   2.32578E-04     1.5
+FORCE      94      589   1.86648E-02   2.28852E-02    98.5
+TIMING     94      662   98.5    1.5    0.0      29.44    2808.79
+------
+ENERGY     95       73   1.04558E-03   1.02573E-03     1.4
+FORCE      95      589   1.90563E-02   2.31547E-02    98.6
+TIMING     95      662   98.5    1.5    0.0      29.41    2838.20
+------
+ENERGY     96       73   3.97592E-04   2.02405E-04     1.5
+FORCE      96      589   1.82933E-02   2.31102E-02    98.5
+TIMING     96      662   98.5    1.5    0.0      29.68    2867.88
+------
+ENERGY     97       73   5.75729E-04   5.22576E-04     1.4
+FORCE      97      589   1.82589E-02   2.29184E-02    98.6
+TIMING     97      662   98.5    1.5    0.0      29.43    2897.31
+------
+ENERGY     98       73   4.54333E-04   6.00240E-04     1.4
+FORCE      98      589   1.84626E-02   2.28891E-02    98.6
+TIMING     98      662   98.4    1.5    0.0      29.73    2927.03
+------
+ENERGY     99       73   5.86316E-04   6.64621E-04     1.4
+FORCE      99      589   1.84220E-02   2.28409E-02    98.6
+TIMING     99      662   98.4    1.5    0.0      29.65    2956.69
+------
+ENERGY    100       73   8.49049E-04   9.98705E-04     1.4
+FORCE     100      589   1.92205E-02   2.27070E-02    98.6
+TIMING    100      662   98.5    1.5    0.0      29.48    2986.17
+-------------------------------------------------------------------------------
+TIMING Training loop finished: 2986.17 seconds.
+*******************************************************************************

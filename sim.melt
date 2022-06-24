@@ -1,0 +1,20 @@
+neighbor	0.3 bin
+neigh_modify	every 20 delay 0 check no
+
+velocity	all create 1000.0 87287
+fix 1 all nvt temp 1000.0 1000.0 0.1
+
+dump              myDump all custom 10  dump.lammpstrj id type x y z fx fy fz
+dump_modify    	  myDump sort id
+
+#dump		id all atom 50 dump.melt
+
+#dump		2 all image 25 image.*.jpg type type &
+#		axes yes 0.8 0.02 view 60 -30
+#dump_modify	2 pad 3
+
+#dump		3 all movie 25 movie.mpg type type &
+#		axes yes 0.8 0.02 view 60 -30
+#dump_modify	3 pad 3
+
+thermo		10
