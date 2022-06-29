@@ -1,7 +1,9 @@
 import sys
 import lammps
+import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')
 from mpi4py import MPI
 
 # Python script to perform a simulation with nnp potentials and check agreement
@@ -9,7 +11,9 @@ potentialSeed = 1
 dataDir = 'PhysicalPropertiesTemplate/Configurations/Au100Messy.data'
 disagreement = []
 
-totalSteps = 1000
+threshold = 0.02001143776
+
+totalSteps = 200
 checkEvery = 100
 checkSteps = int(totalSteps / checkEvery)
 
@@ -25,9 +29,9 @@ lmp.command('pair_coeff * * 6.01')
 
 lmp.file('sim.melt')
 
-# me = MPI.COMM_WORLD.Get_rank()
-# nprocs = MPI.COMM_WORLD.Get_size()
-# print("Proc %d out of %d procs has" % (me,nprocs),lmp)
+me = MPI.COMM_WORLD.Get_rank()
+nprocs = MPI.COMM_WORLD.Get_size()
+print("Proc %d out of %d procs has" % (me,nprocs),lmp)
 
 for a in range(checkSteps):
     lmp.command('run '+str(checkEvery))
@@ -45,10 +49,13 @@ for a in range(checkSteps):
         seeds[b].command('pair_style nnp dir PotentialsComplete/Seed'+str(b+1)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0 emap "2:Au"')
         seeds[b].command('pair_coeff * * 6.01')
         seeds[b].command('run 0')
-        forces[b] = seeds[b].numpy.extract_atom('f')
+        forces[b] = seeds[b].numpy.extract_atom('f').copy()
+        seeds[b].close()
     deviationAtom = np.std(np.ma.masked_invalid(forces), axis=0)
     deviationMax = np.ma.masked_invalid(deviationAtom).max()
     disagreement.append(deviationMax)
+
+MPI.Finalize()
 
 disagreement = np.array(disagreement)
 
@@ -65,4 +72,4 @@ ax1.errorbar(x, disagreement, label='Disagreement', color='C0')
 
 ax1.legend()
 plt.savefig('timeAgreement.png')
-# MPI.Finalize()
+print('Finished fawjepoifjapoweihfosidhfih')
