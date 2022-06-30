@@ -18,7 +18,7 @@ lmp.command('units metal')
 lmp.command('boundary p p p')
 lmp.command('read_data '+dataDir)
 
-lmp.command('pair_style nnp dir '+locationSeeds[0]+'/Seed'+str(potentialSeed)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0 emap "2:Au"')
+lmp.command('pair_style hdnnp dir '+locationSeeds[0]+'/Seed'+str(potentialSeed)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0 emap "2:Au"')
 lmp.command('pair_coeff * * 6.01')
 
 lmp.file('sim.melt')
@@ -42,7 +42,7 @@ for a in range(len(locationSeeds)):
         seeds[b].command('boundary p p p')
         seeds[b].command('read_data check.data')
 
-        seeds[b].command('pair_style nnp dir '+locationSeeds[a]+'/Seed'+str(b+1)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0 emap "2:Au"')
+        seeds[b].command('pair_style hdnnp dir '+locationSeeds[a]+'/Seed'+str(b+1)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0 emap "2:Au"')
         seeds[b].command('pair_coeff * * 6.01')
         seeds[b].command('run 0')
         forces[b] = seeds[b].numpy.extract_atom('f')
