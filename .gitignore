@@ -1,1 +1,12 @@
 /.vscode
+/shortTraining
+/longTraining
+/Training
+/Restart
+train.data
+train.lammpstrj
+train.outcar
+dump.lammpstrj
+check.data
+log.lammps
+/__pycache__

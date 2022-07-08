@@ -103,7 +103,7 @@ def convertFile(fileName, folder = '', newFolder = False, fileNameOutput = None)
         linesSave.append('lattice {:.16E}'.format(0) + ' {:.16E}'.format(0) + ' {:.16E}'.format(boxBounds[i][2][1] - boxBounds[i][2][0]))
         for b in range(len(atomPositions[timeStep])):
             atomLine = 'atom {:.16E}'.format(atomPositions[i][b][0]) + ' {:.16E}'.format(atomPositions[i][b][1]) + ' {:.16E}'.format(atomPositions[i][b][2])
-            if atomType[timeStep][b] == 2:
+            if atomType[timeStep][b] == 1:
                 atomLine += ' Au '
             else:
                 print('Unknown atom type for atom with id: ' + str(atomId[timeStep][b]))
@@ -120,8 +120,6 @@ def convertFile(fileName, folder = '', newFolder = False, fileNameOutput = None)
             if 'without' in enerLines[s]:
                 lastEnergy = s
         items = str.split(enerLines[lastEnergy])
-        print(fileName)
-        print(items)
         linesSave.append('energy {:.16E}'.format(float(items[4]))) #Energy is ignored as training will be only with forces
         linesSave.append('charge {:.16E}'.format(0)) #The system has a neutral charge
         linesSave.append('end')
