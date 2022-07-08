@@ -75,7 +75,7 @@ def check():
         if disag > threshold:
             lmp.command('write_restart Restart/tmp.restart')
             
-            np.save('sections.npy', np.array(sections, dtype=object))
+            np.save('Restart/sections.npy', np.array(sections, dtype=object))
             MPI.Finalize()
             exit(50)
     return disag
@@ -102,7 +102,7 @@ def restart():
     threshold = 0.2 ################################################## TEST #################################
     lmp.command('read_restart Restart/tmp.restart')
     if rank == 0:
-        sections = np.load('sections.npy', allow_pickle=True)
+        sections = np.load('Restart/sections.npy', allow_pickle=True)
         sections = list(sections)
         for i in range(len(sections)):
             startPoint += len(sections[i])

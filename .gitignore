@@ -3,6 +3,7 @@
 /longTraining
 /Training
 /Restart
+/Output
 train.data
 train.lammpstrj
 train.outcar
