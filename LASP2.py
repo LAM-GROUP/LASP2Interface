@@ -128,7 +128,7 @@ trainings = 1
 
 dirpylammps = ''
 if 'dirpylammps' in lammps:
-    dirpylammps = ' -pythonlammps '+lammps['dirpylammps']
+    dirpylammps = ' '+lammps['dirpylammps']
 exitCode = os.system('mpirun -n 16 python3 interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps)
 print('LAMMPS exited with code')
 print(exitCode)
