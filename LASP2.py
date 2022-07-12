@@ -42,6 +42,12 @@ def readLAMMPS():
             except:
                 print('Invalid value for variable: ' +key)
                 exit(1)
+        elif key == 'dirpylammps':
+            try:
+                lammps[key] = str(vars[key])
+            except:
+                print('Invalid value for variable: ' +key)
+                exit(1)
         else:
             print('Invalid variable: '+key)
             exit(1)
@@ -120,7 +126,10 @@ potInitial = 'PotentialsComplete/'
 os.system('cp -r '+potInitial+' '+potDirs+'Potentials')
 trainings = 1
 
-exitCode = os.system('mpirun -n 16 python3 interfaceLAMMPS.py '+str(os.getpid())+' start')
+dirpylammps = ''
+if 'dirpylammps' in lammps:
+    dirpylammps = ' -pythonlammps '+lammps['dirpylammps']
+exitCode = os.system('mpirun -n 16 python3 interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps)
 print('LAMMPS exited with code')
 print(exitCode)
 while True:

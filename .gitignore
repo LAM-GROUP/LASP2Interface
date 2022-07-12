@@ -4,6 +4,9 @@
 /Training
 /Restart
 /Output
+/build
+/dist
+LASP2.spec
 train.data
 train.lammpstrj
 train.outcar

@@ -1,9 +1,20 @@
 from mpi4py import MPI
-import lammps
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '-pythonlammps':
+        try:
+            dirLibrary = sys.argv[i+1]
+            if not os.path.isdir(dirLibrary):
+                print('Input file could not be found: '+dirLibrary)
+                raise Exception('File error')
+            sys.path.append(dirLibrary)
+        except:
+            print('No valid inpupt parameter after option -i')
+            exit(1)
+import lammps
 import signal
 import time
 
