@@ -1,9 +1,6 @@
 import os
 import sys
 import configparser
-import signal
-import subprocess
-import time
 from interfaceN2P2 import training
 
 def readLASP2():
@@ -90,7 +87,7 @@ for i in range(len(sys.argv)):
                 print('Input file could not be found: '+inputFile)
                 raise Exception('File error')
         except:
-            print('No valid inpupt parameter after option -i')
+            print('No valid input parameter after option -i')
             exit(1)
 
 # Dictionaries where configuration variables will be stored
@@ -99,6 +96,7 @@ lammps = dict()
 n2p2 = dict()
 vasp = dict()
 
+# Read input data for the interface
 config = configparser.ConfigParser()
 config.read(inputFile)
 for section in config:
@@ -118,18 +116,16 @@ for section in config:
         print('Undefined section found: ' + section)
         exit(1)
 
-potDirs = 'Training/'
-outDirs = 'Output/'
+potDirs = 'Training/' #Training files produced during the simulation
 os.makedirs(potDirs, exist_ok=True)
-os.makedirs(outDirs, exist_ok=True)
-potInitial = 'PotentialsComplete/'
+potInitial = n2p2['dirpotentials']
 os.system('cp -r '+potInitial+' '+potDirs+'Potentials')
 trainings = 1
 
 dirpylammps = ''
 if 'dirpylammps' in lammps:
-    dirpylammps = ' '+lammps['dirpylammps']
-exitCode = os.system('mpirun -n 16 python3 interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps)
+    dirpylammps = ' -pylammps '+lammps['dirpylammps']
+exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps)
 print('LAMMPS exited with code')
 print(exitCode)
 while True:
@@ -137,6 +133,6 @@ while True:
         print('Performing training')
         #training(potDirs, trainings)
         trainings += 1
-        exitCode = os.system('mpirun -n 16 python3 interfaceLAMMPS.py '+str(os.getpid())+' restart')
+        exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 interfaceLAMMPS.py '+str(os.getpid())+' restart'+dirpylammps)
     else:
         break

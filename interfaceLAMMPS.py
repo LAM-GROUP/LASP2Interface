@@ -3,16 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
-if sys.argv[3] != '':
-    try:
-        dirLibrary = sys.argv[3]
-        if not os.path.isdir(dirLibrary):
-            print('Input file could not be found: '+dirLibrary)
-            raise Exception('File error')
-        sys.path.append(dirLibrary)
-    except:
-        print('No valid inpupt parameter after option -i')
-        exit(1)
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '-pylammps':
+        try:
+            dirLibrary = sys.argv[i+1]
+            if not os.path.isdir(dirLibrary):
+                print('LAMMPS python library could not be found: '+dirLibrary)
+                raise Exception('File error')
+            sys.path.append(dirLibrary)
+        except:
+            print('No valid input parameter for lammps python library location')
+            exit(1)
 import lammps
 import signal
 import time
@@ -75,11 +76,6 @@ def check():
             message = 1
             # Disagreement is too high
             # DFT calculations will be performed and potentials will be trained
-            ############# TEST DATA ########################################
-            file2 = open('train.outcar', 'w')
-            file2.write('energy without something etc ' + str(pe))
-            file2.close()
-            ################################################################
         for i in range(1, nprocs):
             comm.send(message, dest=i, tag=i)
         if disag > threshold:
@@ -107,7 +103,6 @@ def initialize():
 def restart():
     global sections
     global startPoint
-    global pe
     global threshold
     threshold = 0.2 ################################################## TEST #################################
     lmp.command('read_restart Restart/tmp.restart')
@@ -129,7 +124,6 @@ def restart():
     # Read commands for the simulation to be performed
     lmp.file('restart.lmp')
     lmp.command('run 0')
-    pe = lmp.get_thermo("pe")
     #check()
 
 # MPI variables and set COMM_WORLD as communicator
@@ -165,16 +159,12 @@ elif sys.argv[2] == 'restart':
 for a in range(startPoint, checkSteps):
     # Save the structure
     lmp.command('write_data check.data')
-    #################### TEST DATA
-    lmp.command('write_dump all custom train.lammpstrj id type x y z fx fy fz modify sort id')
-    #############################
 
     # Measure agreement
     disag = check()
 
     # Advance the simulation
     lmp.command('run '+str(checkEvery))
-    pe = lmp.get_thermo("pe")
 
 # Measure agreement of last structure in the simulation
 lmp.command('write_data check.data')

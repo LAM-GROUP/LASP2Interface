@@ -1,16 +1,11 @@
 import numpy as np
 import os
-from conversionEnergy import convertFile
-import time
-import subprocess
 
 def training(potLoc, trainingNum):
-    ########################## Test using train.lammpstrj
-    convertFile('train.lammpstrj')
-    ########################################################################
+    # Convert OUTCAR file to n2p2 data
+    os.system('python3 convert-VASP_OUTCAR.py DFT/dft'+str(trainingNum)+'/OUTCAR train.data')
+
     pathShort = potLoc+'short'+str(trainingNum)
-    print(pathShort)
-    time.sleep(5)
     print('Starting n2p2 training procedure')
     os.makedirs(pathShort, exist_ok=True)
     for i in range(1, 6):
