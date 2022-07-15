@@ -1,6 +1,6 @@
 import os
-from ase import io
 from ase.io import vasp
+from ase.io import lammpsdata
 
 def setup_particle_types(frame, data):
         types = data.particles_.particle_types_
@@ -13,7 +13,7 @@ def compute(training):
     computeDir = os.path.join(dftDir, 'dft'+str(training))
     os.system('cp -r vaspInput '+computeDir)
     os.makedirs(os.path.join(dftDir, 'dft'+str(training)), exist_ok=True)
-    lammps = io.lammpsdata.read_lammps_data('check.data',  style='atomic')
+    lammps = lammpsdata.read_lammps_data('check.data',  style='atomic')
     lammps.symbols = 'Au144'
     vasp.write_vasp('POSCAR', lammps)
     os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) $binaire  > output_${SLURM_JOBID}')
