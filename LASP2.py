@@ -2,6 +2,7 @@ import os
 import sys
 import configparser
 from interfaceN2P2 import training
+from interfaceVASP import compute
 
 def readLASP2():
     global lasp2
@@ -131,6 +132,7 @@ print(exitCode)
 while True:
     if exitCode == 12800:
         print('Performing training')
+        compute(trainings)
         #training(potDirs, trainings)
         trainings += 1
         exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 interfaceLAMMPS.py '+str(os.getpid())+' restart'+dirpylammps)
