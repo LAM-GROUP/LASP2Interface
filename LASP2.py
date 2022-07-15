@@ -2,6 +2,7 @@ import os
 import sys
 import configparser
 import ase
+import time
 from interfaceN2P2 import training
 from interfaceVASP import compute
 
@@ -127,7 +128,13 @@ trainings = 1
 dirpylammps = ''
 if 'dirpylammps' in lammps:
     dirpylammps = ' -pylammps '+lammps['dirpylammps']
-exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps)
+
+# Get location of binary
+dirpath = os.path.dirname(os.path.realpath(__file__))
+print(dirpath)
+
+# Begin simulation
+exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 '+os.path.join(dirpath, 'interfaceLAMMPS.py')+' '+str(os.getpid())+' start'+dirpylammps)
 print('LAMMPS exited with code')
 print(exitCode)
 while True:
@@ -136,6 +143,6 @@ while True:
         compute(trainings)
         #training(potDirs, trainings)
         trainings += 1
-        exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 interfaceLAMMPS.py '+str(os.getpid())+' restart'+dirpylammps)
+        exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 '+os.path.join(dirpath, 'interfaceLAMMPS.py')+' '+str(os.getpid())+' restart'+dirpylammps)
     else:
         break
