@@ -1,5 +1,5 @@
 import os
-import ovito
+from ovito.io import import_file, export_file
 
 def setup_particle_types(frame, data):
         types = data.particles_.particle_types_
@@ -12,7 +12,7 @@ def compute(training):
     computeDir = os.path.join(dftDir, 'dft'+str(training))
     os.system('cp -r vaspInput '+computeDir)
     os.makedirs(os.path.join(dftDir, 'dft'+str(training)), exist_ok=True)
-    pipeline = ovito.io.import_file('check.data')
+    pipeline = import_file('check.data')
     pipeline.modifiers.append(setup_particle_types)
-    ovito.io.export_file(pipeline, os.path.join(computeDir, 'POSCAR'), 'vasp')
+    export_file(pipeline, os.path.join(computeDir, 'POSCAR'), 'vasp')
     os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) $binaire  > output_${SLURM_JOBID}')
