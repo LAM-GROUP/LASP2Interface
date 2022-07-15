@@ -1,6 +1,7 @@
 import os
 import sys
 import configparser
+import ase
 from interfaceN2P2 import training
 from interfaceVASP import compute
 
