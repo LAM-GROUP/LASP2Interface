@@ -132,9 +132,10 @@ if 'dirpylammps' in lammps:
 # Get location of binary
 dirpath = os.path.dirname(os.path.realpath(__file__))
 print(dirpath)
+#'+os.path.join(dirpath, 'interfaceLAMMPS.py')+'
 
 # Begin simulation
-exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 '+os.path.join(dirpath, 'interfaceLAMMPS.py')+' '+str(os.getpid())+' start'+dirpylammps)
+exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps+' -iteration '+str(trainings))
 print('LAMMPS exited with code')
 print(exitCode)
 while True:
@@ -143,6 +144,6 @@ while True:
         compute(trainings)
         #training(potDirs, trainings)
         trainings += 1
-        exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 '+os.path.join(dirpath, 'interfaceLAMMPS.py')+' '+str(os.getpid())+' restart'+dirpylammps)
+        exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' restart'+dirpylammps+' -iteration '+str(trainings))
     else:
         break

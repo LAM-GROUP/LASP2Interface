@@ -4,8 +4,8 @@ neigh_modify	every 20 delay 0 check no
 #velocity	all create 1000.0 87287
 fix 1 all nvt temp 1000.0 1000.0 0.1
 
-#dump              myDump all custom 10  dump.lammpstrj id type x y z fx fy fz
-#dump_modify    	  myDump sort id
+dump              myDump all custom 10  dump${iteration}.lammpstrj id type x y z fx fy fz
+dump_modify    	  myDump sort id
 
 #dump		id all atom 50 dump.melt
 

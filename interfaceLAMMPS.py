@@ -104,7 +104,7 @@ def restart():
     global sections
     global startPoint
     global threshold
-    threshold = 0.2 ################################################## TEST #################################
+    #threshold = 0.2 ################################################## TEST #################################
     lmp.command('read_restart Restart/tmp.restart')
     if rank == 0:
         sections = np.load('Restart/sections.npy', allow_pickle=True)
@@ -142,10 +142,19 @@ os.makedirs('Restart', exist_ok=True)
 disagreement = []
 sections = []
 threshold = 0.02001143776 * 4 #Disagreement value that will activate the training flag
-totalSteps = 1000 #Total number of steps to be simulated
+totalSteps = 2000 #Total number of steps to be simulated
 checkEvery = 100 #Number of steps after which the agreement will be measured
 checkSteps = int(totalSteps / checkEvery) #Number of times the agreement will be measured
 startPoint = 0
+
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '-iteration':
+        try:
+            numIteration = int(sys.argv[i+1])
+            lmp.command('variable iteration internal '+str(numIteration))
+        except:
+            print('No valid number of iteration')
+            exit(1)
 
 # Get process id of parent to send back signals
 parentId = int(sys.argv[1])
