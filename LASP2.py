@@ -139,7 +139,7 @@ exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3
 print('LAMMPS exited with code')
 print(exitCode)
 while True:
-    if exitCode == 12800:
+    if exitCode == 12800: #Exit code returned when the flag for training is activated
         print('Performing training')
         compute(trainings)
         training(potDirs, trainings)

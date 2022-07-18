@@ -26,7 +26,7 @@ def training(potLoc, trainingNum):
         print('Starting scaling')
         os.system('nnp-scaling 5000 > scaling.out')
         print('Starting training')
-        os.system('nnp-train > training.out')
+        os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) > training.out')
         os.chdir('../../..')
     
     pathLong = potLoc+'long'+str(trainingNum)
@@ -52,7 +52,7 @@ def training(potLoc, trainingNum):
         print('Starting scaling')
         os.system('nnp-scaling 5000 > scaling.out')
         print('Starting training')
-        os.system('mpirun -n 16 nnp-train > training.out')
+        os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) nnp-train > training.out')
         os.chdir('../../..')
         os.system('cp '+pathLong+'/Seed'+str(i)+'/weights.079.000050.out '+potLoc+'Potentials/Seed'+str(i)+'/weights.079.data')
         os.system('cp '+pathLong+'/Seed'+str(i)+'/input.nn '+potLoc+'Potentials/Seed'+str(i)+'/')
