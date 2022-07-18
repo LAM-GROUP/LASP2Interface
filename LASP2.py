@@ -135,15 +135,15 @@ print(dirpath)
 #'+os.path.join(dirpath, 'interfaceLAMMPS.py')+'
 
 # Begin simulation
-exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps+' -iteration '+str(trainings))
+exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps+' -iteration '+str(trainings))
 print('LAMMPS exited with code')
 print(exitCode)
 while True:
     if exitCode == 12800:
         print('Performing training')
         compute(trainings)
-        #training(potDirs, trainings)
+        training(potDirs, trainings)
         trainings += 1
-        exitCode = os.system('mpirun -n '+str(lasp2['numprocesses'])+' python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' restart'+dirpylammps+' -iteration '+str(trainings))
+        exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' restart'+dirpylammps+' -iteration '+str(trainings))
     else:
         break
