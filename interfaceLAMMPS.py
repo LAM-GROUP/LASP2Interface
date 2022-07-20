@@ -132,7 +132,7 @@ rank = comm.Get_rank()
 nprocs = comm.Get_size()
 
 potentialSeed = 1 #Potential used for main simulation
-dataDir = 'Au100Messy.data' #Location of the structure being simulated
+dataDir = 'Bulk.data' #Location of the structure being simulated
 potDir = 'PotentialsComplete' ############################### TEST ####################################
 #potDir = 'Training/Potentials'
 lmp = lammps.lammps()
