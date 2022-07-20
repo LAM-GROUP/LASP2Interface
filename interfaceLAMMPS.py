@@ -1,5 +1,7 @@
 from mpi4py import MPI
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 import sys
