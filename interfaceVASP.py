@@ -12,7 +12,7 @@ def compute(training):
     os.makedirs(dftDir, exist_ok=True)
     computeDir = os.path.join(dftDir, 'dft'+str(training))
     os.system('cp -r vaspInput '+computeDir)
-    lammps = lammpsdata.read_lammps_data('check.data',  style='atomic')
+    lammps = lammpsdata.read_lammps_data('Restart/check.data',  style='atomic')
     lammps.symbols = 'Au'+str(len(lammps))
     os.chdir(computeDir)
     vasp.write_vasp('POSCAR', lammps)

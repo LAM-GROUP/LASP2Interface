@@ -34,7 +34,7 @@ def check():
         seeds[b].command('units metal')
         seeds[b].command('boundary p p p')
         # Read the last structure of the main simulation
-        seeds[b].command('read_data check.data')
+        seeds[b].command('read_data Restart/check.data')
 
         # Setup potentials with different random seeds for each lammps object
         seeds[b].command('pair_style hdnnp 6.0 dir '+potDir+'/Seed'+str(b+1)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0')
@@ -64,7 +64,6 @@ def check():
         # Wait for message to know that it is ok to continue
         message = comm.recv(source = 0, tag = rank)
         if message == 1:
-            lmp.command('write_restart Restart/tmp.restart')
             MPI.Finalize()
             exit()
     
@@ -81,8 +80,6 @@ def check():
         for i in range(1, nprocs):
             comm.send(message, dest=i, tag=i)
         if disag > threshold:
-            lmp.command('write_restart Restart/tmp.restart')
-            
             np.save('Restart/sections.npy', np.array(sections, dtype=object))
             MPI.Finalize()
             exit(50)
@@ -112,8 +109,8 @@ def restart():
         sections = np.load('Restart/sections.npy', allow_pickle=True)
         sections = list(sections)
         for i in range(len(sections)):
-            startPoint += len(sections[i])
-        startPoint -= (len(sections))
+            startPoint += len(sections[i]) - 1
+        startPoint -= (len(sections)-1)
         for i in range(1, nprocs):
             comm.send(startPoint, dest=i, tag=i)
     else:
@@ -144,7 +141,7 @@ os.makedirs('Restart', exist_ok=True)
 disagreement = []
 sections = []
 threshold = 0.02001143776 * 4 #Disagreement value that will activate the training flag
-totalSteps = 2000 #Total number of steps to be simulated
+totalSteps = 500 #Total number of steps to be simulated
 checkEvery = 100 #Number of steps after which the agreement will be measured
 checkSteps = int(totalSteps / checkEvery) #Number of times the agreement will be measured
 startPoint = 0
@@ -164,21 +161,36 @@ parentId = int(sys.argv[1])
 if sys.argv[2] == 'start':
     initialize()
 elif sys.argv[2] == 'restart':
-    restart()
+    if os.path.isfile('Restart/tmp.restart'):
+        restart()
+    else:
+        initialize()
+        if rank == 0:
+            sections = np.load('Restart/sections.npy', allow_pickle=True)
+            sections = list(sections)
+            for i in range(len(sections)):
+                startPoint += len(sections[i]) - 1
+            startPoint -= (len(sections)-1)
+            for i in range(1, nprocs):
+                comm.send(startPoint, dest=i, tag=i)
+        else:
+            startPoint = comm.recv(source = 0, tag = rank)
 
 # Simulation loop
 for a in range(startPoint, checkSteps):
     # Save the structure
-    lmp.command('write_data check.data')
+    lmp.command('write_data Restart/check.data')
 
     # Measure agreement
     disag = check()
+    # Write file to restart from last successful step
+    lmp.command('write_restart Restart/tmp.restart')
 
     # Advance the simulation
     lmp.command('run '+str(checkEvery))
 
 # Measure agreement of last structure in the simulation
-lmp.command('write_data check.data')
+lmp.command('write_data Restart/check.data')
 disag = check()
 sections.append(disagreement.copy())
 
@@ -193,9 +205,12 @@ if rank == 0:
 
     x = []
     for i in range(len(sections)):
-        x.append((np.arange(len(sections[i])))*checkEvery)
+        startLine = 0
         if i > 0:
-            x[i] += x[i-1][-1]
+            for b in range(i+1):
+                startLine += len(sections[b]) - 1
+                startLine -= (i)
+        x.append((np.arange(len(sections[i]))+startLine)*checkEvery)
         ax1.plot(x[i], sections[i], marker='o', ls=':')
     ax1.axhline(threshold, ls='--', color='black')
 
