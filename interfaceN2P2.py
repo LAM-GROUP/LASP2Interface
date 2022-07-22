@@ -105,7 +105,7 @@ def training(potLoc, trainingNum):
     for i in range(1, 6):
         os.makedirs(pathTrain+'/Seed'+str(i), exist_ok=True)
         os.system('cp trainingInput/Seed'+str(i)+'/input.nn '+pathTrain+'/Seed'+str(i)+'/')
-        os.system('cat completeinput.data train.data > '+pathTrain+'/Seed'+str(i)+'/input.data')
+        os.system('cat completeinput.data Training/train.data > '+pathTrain+'/Seed'+str(i)+'/input.data')
         os.system('cp PotentialsComplete/Seed'+str(i)+'/weights.079.data '+pathTrain+'/Seed'+str(i)+'/')
         os.chdir(pathTrain+'/Seed'+str(i))
         # Change number of epochs
