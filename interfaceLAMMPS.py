@@ -132,8 +132,8 @@ nprocs = comm.Get_size()
 
 potentialSeed = 1 #Potential used for main simulation
 dataDir = 'Bulk.data' #Location of the structure being simulated
-potDir = 'PotentialsComplete' ############################### TEST ####################################
-#potDir = 'Training/Potentials'
+#potDir = 'PotentialsComplete' ############################### TEST ####################################
+potDir = 'Training/Potentials'
 lmp = lammps.lammps()
 os.makedirs('Restart', exist_ok=True)
 
