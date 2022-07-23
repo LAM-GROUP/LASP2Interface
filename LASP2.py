@@ -123,6 +123,7 @@ potDirs = 'Training/' #Training files produced during the simulation
 os.makedirs(potDirs, exist_ok=True)
 potInitial = n2p2['dirpotentials']
 os.system('cp -r '+potInitial+' '+potDirs+'Potentials')
+os.system('cp completeinput.data Training/complete0.data')
 trainings = 1
 
 dirpylammps = ''

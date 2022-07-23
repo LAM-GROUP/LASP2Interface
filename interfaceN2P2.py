@@ -102,10 +102,11 @@ def training(potLoc, trainingNum):
     pathTrain = potLoc+'nnp'+str(trainingNum)
     print('Starting n2p2 training procedure')
     os.makedirs(pathTrain, exist_ok=True)
+    os.system('cat Training/complete'+str(trainingNum-1)+'.data Training/train.data > Training/complete'+str(trainingNum)+'.data')
     for i in range(1, 6):
         os.makedirs(pathTrain+'/Seed'+str(i), exist_ok=True)
         os.system('cp trainingInput/Seed'+str(i)+'/input.nn '+pathTrain+'/Seed'+str(i)+'/')
-        os.system('cat completeinput.data Training/train.data > '+pathTrain+'/Seed'+str(i)+'/input.data')
+        os.system('cp Training/complete'+str(trainingNum)+'.data '+pathTrain+'/Seed'+str(i)+'/input.data')
         os.system('cp PotentialsComplete/Seed'+str(i)+'/weights.079.data '+pathTrain+'/Seed'+str(i)+'/')
         os.chdir(pathTrain+'/Seed'+str(i))
         # Change number of epochs
