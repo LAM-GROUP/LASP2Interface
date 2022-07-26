@@ -104,7 +104,6 @@ def restart():
     global startPoint
     global threshold
     #threshold = 0.2 ################################################## TEST #################################
-    lmp.command('read_restart Restart/tmp.restart')
     if rank == 0:
         sections = np.load('Restart/sections.npy', allow_pickle=True)
         sections = list(sections)
@@ -115,6 +114,7 @@ def restart():
             comm.send(startPoint, dest=i, tag=i)
     else:
         startPoint = comm.recv(source = 0, tag = rank)
+    lmp.command('read_restart Restart/tmp'+str(startPoint*checkEvery)+'.restart')
     
     # Setup n2p2 potential
     lmp.command('pair_style hdnnp 6.0 dir '+potDir+'/Seed'+str(potentialSeed)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0')
@@ -161,7 +161,7 @@ parentId = int(sys.argv[1])
 if sys.argv[2] == 'start':
     initialize()
 elif sys.argv[2] == 'restart':
-    if os.path.isfile('Restart/tmp.restart'):
+    if os.path.isfile('Restart/tmp0.restart'):
         restart()
     else:
         initialize()
@@ -184,7 +184,7 @@ for a in range(startPoint, checkSteps):
     # Measure agreement
     disag = check()
     # Write file to restart from last successful step
-    lmp.command('write_restart Restart/tmp.restart')
+    lmp.command('write_restart Restart/tmp*.restart')
 
     # Advance the simulation
     lmp.command('run '+str(checkEvery))
@@ -192,6 +192,8 @@ for a in range(startPoint, checkSteps):
 # Measure agreement of last structure in the simulation
 lmp.command('write_data Restart/check.data')
 disag = check()
+# Write file to restart from last successful step
+lmp.command('write_restart Restart/tmp*.restart')
 sections.append(disagreement.copy())
 
 # Plotting disagreement over time (Only on rank 0)
