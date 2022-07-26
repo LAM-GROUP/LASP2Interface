@@ -110,6 +110,8 @@ def restart():
         for i in range(len(sections)):
             startPoint += len(sections[i]) - 1
         startPoint -= (len(sections)-1)
+        if startPoint < 0:
+            startPoint = 0
         for i in range(1, nprocs):
             comm.send(startPoint, dest=i, tag=i)
     else:
@@ -161,7 +163,7 @@ parentId = int(sys.argv[1])
 if sys.argv[2] == 'start':
     initialize()
 elif sys.argv[2] == 'restart':
-    if os.path.isfile('Restart/tmp0.restart'):
+    if os.path.isfile('Restart/tmp0.restart'): ######## Might be possible to delete this check
         restart()
     else:
         initialize()
@@ -171,6 +173,8 @@ elif sys.argv[2] == 'restart':
             for i in range(len(sections)):
                 startPoint += len(sections[i]) - 1
             startPoint -= (len(sections)-1)
+            if startPoint < 0:
+                startPoint = 0
             for i in range(1, nprocs):
                 comm.send(startPoint, dest=i, tag=i)
         else:
@@ -180,20 +184,20 @@ elif sys.argv[2] == 'restart':
 for a in range(startPoint, checkSteps):
     # Save the structure
     lmp.command('write_data Restart/check.data')
-
+    # Write file to restart
+    lmp.command('write_restart Restart/tmp*.restart')
     # Measure agreement
     disag = check()
-    # Write file to restart from last successful step
-    lmp.command('write_restart Restart/tmp*.restart')
 
     # Advance the simulation
     lmp.command('run '+str(checkEvery))
 
 # Measure agreement of last structure in the simulation
 lmp.command('write_data Restart/check.data')
-disag = check()
-# Write file to restart from last successful step
+# Write file to restart
 lmp.command('write_restart Restart/tmp*.restart')
+# Measure agreement
+disag = check()
 sections.append(disagreement.copy())
 
 # Plotting disagreement over time (Only on rank 0)
