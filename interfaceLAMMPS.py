@@ -17,13 +17,12 @@ for i in range(len(sys.argv)):
             print('No valid input parameter for lammps python library location')
             exit(1)
 import lammps
-import signal
-import time
+import sectionsParser
 
 # Python script to perform a simulation with nnp potentials and check agreement
 
 # Function to measure the agreement between the different potentials
-def check():
+def check(iteration):
     disag = 0.0
     # Disagreement measurement loop
     seeds = [None]*5
@@ -68,19 +67,19 @@ def check():
             exit()
     
     if rank == 0:
-        disagreement.append(disag)
+        disagreement[0].append(iteration*checkEvery)
+        disagreement[1].append(disag)
         # Flag activation
         message = 0
         if disag > threshold:
             sections.append(disagreement.copy())
-            disagreement.clear()
             message = 1
             # Disagreement is too high
             # DFT calculations will be performed and potentials will be trained
         for i in range(1, nprocs):
             comm.send(message, dest=i, tag=i)
         if disag > threshold:
-            np.save('Restart/sections.npy', np.array(sections, dtype=object))
+            sectionsParser.save(sections, 'Restart/sections.out')
             MPI.Finalize()
             exit(50)
     return disag
@@ -109,11 +108,8 @@ def restart():
     global threshold
     #threshold = 0.2 ################################################## TEST #################################
     if rank == 0:
-        sections = np.load('Restart/sections.npy', allow_pickle=True)
-        sections = list(sections)
-        for i in range(len(sections)):
-            startPoint += len(sections[i]) - 1
-        startPoint -= (len(sections)-1)
+        sections = sectionsParser.load('Restart/sections.out')
+        startPoint = int(sections[-1][0][-1] / checkEvery) - 1
         if startPoint < 0:
             startPoint = 0
         for i in range(1, nprocs):
@@ -147,7 +143,7 @@ lmp = lammps.lammps()
 os.makedirs('Restart', exist_ok=True)
 
 # Training variables
-disagreement = []
+disagreement = [[],[]]
 sections = []
 threshold = 0.02001143776 * 4 #Disagreement value that will activate the training flag
 totalSteps = 300 #Total number of steps to be simulated
@@ -178,7 +174,7 @@ for a in range(startPoint, checkSteps):
     # Write file to restart
     lmp.command('write_restart Restart/tmp*.restart')
     # Measure agreement
-    disag = check()
+    disag = check(a)
 
     # Advance the simulation
     lmp.command('run '+str(checkEvery))
@@ -188,9 +184,9 @@ lmp.command('write_data Restart/check.data')
 # Write file to restart
 lmp.command('write_restart Restart/tmp*.restart')
 # Measure agreement
-disag = check()
+disag = check(a+1)
 sections.append(disagreement.copy())
-np.save('Restart/sections.npy', np.array(sections, dtype=object))
+sectionsParser.save(sections, 'Restart/sections.out')
 
 # Plotting disagreement over time (Only on rank 0)
 if rank == 0:
@@ -217,16 +213,9 @@ if rank == 0:
     ax1.set_ylabel('Disagreement')
     ax1.set_xlabel('Timestep')
 
-    x = []
     colors = get_color_gradient("#FF0000", "#0000FF", len(sections))
     for i in range(len(sections)):
-        startLine = 0
-        if i > 0:
-            for b in range(i):
-                startLine += len(sections[b]) - 1
-            startLine -= (i-1)
-        x.append((np.arange(len(sections[i]))+startLine)*checkEvery)
-        ax1.plot(x[i], sections[i], c=colors[i], marker='o', ls=':')
+        ax1.plot(sections[i][0], sections[i][1], c=colors[i], marker='o', ls=':')
     ax1.axhline(threshold, ls='--', color='black')
 
     fig.savefig('timeAgreement.png')
