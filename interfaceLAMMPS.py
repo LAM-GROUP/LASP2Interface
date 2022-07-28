@@ -95,6 +95,10 @@ def initialize():
     lmp.command('pair_style hdnnp 6.0 dir '+potDir+'/Seed'+str(potentialSeed)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0')
     lmp.command('pair_coeff * * Au')
 
+    # Setup internal dump
+    lmp.command('dump              dumpInternalLASP2 all custom 10  Restart/dump${iteration}.lammpstrj id type x y z fx fy fz')
+    lmp.command('dump_modify    	  dumpInternalLASP2 sort id')
+
     # Read commands for the simulation to be performed
     lmp.file('input.lmp')
     lmp.command('run 0')
@@ -122,10 +126,13 @@ def restart():
     lmp.command('pair_style hdnnp 6.0 dir '+potDir+'/Seed'+str(potentialSeed)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0')
     lmp.command('pair_coeff * * Au')
 
+    # Setup internal dump
+    lmp.command('dump              dumpInternalLASP2 all custom 10  Restart/dump${iteration}.lammpstrj id type x y z fx fy fz')
+    lmp.command('dump_modify    	  dumpInternalLASP2 sort id')
+
     # Read commands for the simulation to be performed
     lmp.file('restart.lmp')
     lmp.command('run 0')
-    #check()
 
 # MPI variables and set COMM_WORLD as communicator
 comm = MPI.COMM_WORLD
@@ -148,6 +155,7 @@ checkEvery = 100 #Number of steps after which the agreement will be measured
 checkSteps = int(totalSteps / checkEvery) #Number of times the agreement will be measured
 startPoint = 0
 
+# Read the number of iteration from the input parameters
 for i in range(len(sys.argv)):
     if sys.argv[i] == '-iteration':
         try:
@@ -157,28 +165,11 @@ for i in range(len(sys.argv)):
             print('No valid number of iteration')
             exit(1)
 
-# Get process id of parent to send back signals
-parentId = int(sys.argv[1])
 # Check if the simulation is being restarted after training
 if sys.argv[2] == 'start':
     initialize()
 elif sys.argv[2] == 'restart':
-    if os.path.isfile('Restart/tmp0.restart'): ######## Might be possible to delete this check
-        restart()
-    else:
-        initialize()
-        if rank == 0:
-            sections = np.load('Restart/sections.npy', allow_pickle=True)
-            sections = list(sections)
-            for i in range(len(sections)):
-                startPoint += len(sections[i]) - 1
-            startPoint -= (len(sections)-1)
-            if startPoint < 0:
-                startPoint = 0
-            for i in range(1, nprocs):
-                comm.send(startPoint, dest=i, tag=i)
-        else:
-            startPoint = comm.recv(source = 0, tag = rank)
+    restart()
 
 # Simulation loop
 for a in range(startPoint, checkSteps):
@@ -199,9 +190,26 @@ lmp.command('write_restart Restart/tmp*.restart')
 # Measure agreement
 disag = check()
 sections.append(disagreement.copy())
+np.save('Restart/sections.npy', np.array(sections, dtype=object))
 
 # Plotting disagreement over time (Only on rank 0)
 if rank == 0:
+    def hex_to_RGB(hex_str):
+        """ #FFFFFF -> [255,255,255]"""
+        #Pass 16 to the integer function for change of base
+        return [int(hex_str[i:i+2], 16) for i in range(1, 6, 2)]
+    def get_color_gradient(c1, c2, n):
+        """
+        Given two hex colors, returns a color gradient
+        with n colors.
+        """
+        assert n > 1
+        c1_rgb = np.array(hex_to_RGB(c1))/255
+        c2_rgb = np.array(hex_to_RGB(c2))/255
+        mix_pcts = [x/(n-1) for x in range(n)]
+        rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
+        return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
+
     plt.rcParams["axes.prop_cycle"] = plt.cycler("color", plt.cm.Dark2.colors)
     fig, ax1 = plt.subplots()
 
@@ -210,18 +218,19 @@ if rank == 0:
     ax1.set_xlabel('Timestep')
 
     x = []
+    colors = get_color_gradient("#FF0000", "#0000FF", len(sections))
     for i in range(len(sections)):
         startLine = 0
         if i > 0:
-            for b in range(i+1):
+            for b in range(i):
                 startLine += len(sections[b]) - 1
-                startLine -= (i)
+            startLine -= (i-1)
         x.append((np.arange(len(sections[i]))+startLine)*checkEvery)
-        ax1.plot(x[i], sections[i], marker='o', ls=':')
+        ax1.plot(x[i], sections[i], c=colors[i], marker='o', ls=':')
     ax1.axhline(threshold, ls='--', color='black')
 
     fig.savefig('timeAgreement.png')
-    print('Finished')
+    print('Simulation Completed')
 
 # End of the program
 MPI.Finalize()

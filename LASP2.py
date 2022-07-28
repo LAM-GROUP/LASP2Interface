@@ -5,6 +5,7 @@ import ase
 import time
 from interfaceN2P2 import training
 from interfaceVASP import compute
+from dumpMerger import merge
 
 def readLASP2():
     global lasp2
@@ -137,14 +138,17 @@ print(dirpath)
 
 # Begin simulation
 exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' start'+dirpylammps+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
-print('LAMMPS exited with code')
-print(exitCode)
+print('LAMMPS exited with code: '+str(exitCode))
 while True:
     if exitCode == 12800: #Exit code returned when the flag for training is activated
-        print('Performing training')
+        print('Performing DFT calculations         Iteration: '+str(trainings))
         compute(trainings)
+        print('Performing NNP training             Iteration: '+str(trainings))
         training(potDirs, trainings)
         trainings += 1
         exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py '+str(os.getpid())+' restart'+dirpylammps+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
     else:
         break
+if exitCode == 0:
+    print('LAMMPS interface exited successfully')
+    merge(trainings-1, 'Restart/dump*.lammpstrj', 'Restart/dumpComplete.lammpstrj')
