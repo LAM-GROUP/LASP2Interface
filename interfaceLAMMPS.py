@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 import sys
+from sys import exit
 
 # Read name of configuration file
 inputFile = 'lasp2.ini'

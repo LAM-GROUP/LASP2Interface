@@ -1,5 +1,6 @@
 import os
 import sys
+from sys import exit
 import configparser
 import ase
 import time
@@ -85,7 +86,7 @@ config.read(inputFile)
 for section in config:
     if section == 'LASP2':
         readLASP2()
-    if section == 'LAMMPS':
+    elif section == 'LAMMPS':
         continue
     elif section == 'N2P2':
         readN2P2()
