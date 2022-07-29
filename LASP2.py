@@ -85,6 +85,8 @@ config.read(inputFile)
 for section in config:
     if section == 'LASP2':
         readLASP2()
+    if section == 'LAMMPS':
+        continue
     elif section == 'N2P2':
         readN2P2()
     elif section == 'VASP':
