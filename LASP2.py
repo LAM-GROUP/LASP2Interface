@@ -108,7 +108,7 @@ os.system('cp completeinput.data Training/complete0.data')
 trainings = 1
 
 # Begin simulation
-exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) interfaceLAMMPS --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
+exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
 print('LAMMPS exited with code: '+str(exitCode))
 while True:
     if exitCode == 12800: #Exit code returned when the flag for training is activated
@@ -117,7 +117,7 @@ while True:
         print('Performing NNP training             Iteration: '+str(trainings))
         training(potDirs, trainings, lasp2['numseeds'], n2p2['epochslong'])
         trainings += 1
-        exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) interfaceLAMMPS --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
+        exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
     else:
         break
 if exitCode == 0:
