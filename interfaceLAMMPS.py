@@ -268,8 +268,9 @@ lmp.command('write_data Restart/check.data')
 lmp.command('write_restart Restart/tmp*.restart')
 # Measure agreement
 disag = check(a+1)
-sections.append(disagreement.copy())
-sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
+if rank == 0:
+    sections.append(disagreement.copy())
+    sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
 
 # Plotting disagreement over time (Only on rank 0)
 if rank == 0:
