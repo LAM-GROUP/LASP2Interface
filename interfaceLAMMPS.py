@@ -162,7 +162,7 @@ def check(iteration):
             comm.send(message, dest=i, tag=i)
         if disag > threshold:
             sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
-            print('50', file=sys.stderr)
+            print('50', end='', file=sys.stderr)
             MPI.Finalize()
             exit()
     return disag
