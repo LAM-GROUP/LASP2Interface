@@ -95,25 +95,26 @@ def convert(inputFile, outputFile):
         f.write("charge {0:s}\n".format("0.0"))
         f.write("end\n")
 
-def training(potLoc, trainingNum):
+def training(potLoc, trainingNum, numSeeds, epochs=0):
     # Convert OUTCAR file to n2p2 data
     convert('DFT/dft'+str(trainingNum)+'/OUTCAR', 'Training/train.data')
 
     pathTrain = potLoc+'nnp'+str(trainingNum)
-    print('Starting n2p2 training procedure')
     os.makedirs(pathTrain, exist_ok=True)
     os.system('cat Training/complete'+str(trainingNum-1)+'.data Training/train.data > Training/complete'+str(trainingNum)+'.data')
-    for i in range(1, 6):
+    for i in range(1, numSeeds+1):
         os.makedirs(pathTrain+'/Seed'+str(i), exist_ok=True)
         os.system('cp trainingInput/Seed'+str(i)+'/input.nn '+pathTrain+'/Seed'+str(i)+'/')
         os.system('cp Training/complete'+str(trainingNum)+'.data '+pathTrain+'/Seed'+str(i)+'/input.data')
-        os.system('cp PotentialsComplete/Seed'+str(i)+'/weights.079.data '+pathTrain+'/Seed'+str(i)+'/')
+        os.system('cp Training/Potentials/Seed'+str(i)+'/weights.079.data '+pathTrain+'/Seed'+str(i)+'/')
         os.chdir(pathTrain+'/Seed'+str(i))
-        # Change number of epochs
+        # Change number of epochs if it is defined
         epochsLine = os.popen("grep '^epochs' input.nn").read()[:-1]
         numEpochs = epochsLine.split()[1]
-        epochsReplace = epochsLine.replace(str(numEpochs), str(50))
-        os.system("sed -i 's/"+epochsLine+"/"+epochsReplace+"/g' input.nn")
+        if epochs != 0:
+            epochsReplace = epochsLine.replace(str(numEpochs), str(epochs))
+            os.system("sed -i 's/"+epochsLine+"/"+epochsReplace+"/g' input.nn")
+            numEpochs = epochs
         # Change fraction of test set to 0
         testLine = os.popen("grep '^test_fraction' input.nn").read()[:-1]
         testFraction = testLine.split()[1]
@@ -123,13 +124,12 @@ def training(potLoc, trainingNum):
         # Check if it has been added before
         if os.popen("grep '^use_old_weights_short' input.nn").read() == '':
             os.system("sed -i '/^elements/ a use_old_weights_short             # Start the simulation using previous weights' input.nn")
-        print('Starting scaling')
         os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) nnp-scaling 5000 > out-scaling.txt')
-        print('Starting training')
         os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) nnp-train > out-train.txt')
         os.chdir('../../..')
-    
-        os.system('cp '+pathTrain+'/Seed'+str(i)+'/weights.079.000050.out '+potLoc+'Potentials/Seed'+str(i)+'/weights.079.data')
+
+        # Copy last epochs of the training to the Potentials folder
+        os.system('cp '+pathTrain+'/Seed'+str(i)+'/weights.079.{:06d}'.format(numEpochs)+'.out '+potLoc+'Potentials/Seed'+str(i)+'/weights.079.data')
         os.system('cp '+pathTrain+'/Seed'+str(i)+'/input.nn '+potLoc+'Potentials/Seed'+str(i)+'/')
         os.system('cp '+pathTrain+'/Seed'+str(i)+'/scaling.data '+potLoc+'Potentials/Seed'+str(i)+'/')
         os.system('cp '+pathTrain+'/Seed'+str(i)+'/nnp-train.log.0000 '+potLoc+'Potentials/Seed'+str(i)+'/')

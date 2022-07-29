@@ -52,6 +52,7 @@ def save(sections, fileName='sections.out', nameSim='LASP2 Simulation', threshol
     lines.append('# The format is as follows ...')
     lines.append('# ITERATION: N')
     lines.append('# step    disagreement')
+    lines.append('')
     for i in range(len(sections)):
         lines.append('ITERATION: '+str(i+1))
         for b in  range(len(sections[i][0])):

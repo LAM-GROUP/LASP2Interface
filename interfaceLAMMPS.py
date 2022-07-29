@@ -1,35 +1,114 @@
 from mpi4py import MPI
 import numpy as np
+import configparser
+import sectionsParser
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 import sys
+
+# Read name of configuration file
+inputFile = 'lasp2.ini'
 for i in range(len(sys.argv)):
-    if sys.argv[i] == '-pylammps':
+    if sys.argv[i] == '-config':
         try:
-            dirLibrary = sys.argv[i+1]
-            if not os.path.isdir(dirLibrary):
-                print('LAMMPS python library could not be found: '+dirLibrary)
+            inputFile = sys.argv[i+1]
+            if not os.path.isfile(inputFile):
+                print('Input file could not be found: '+inputFile)
                 raise Exception('File error')
-            sys.path.append(dirLibrary)
         except:
-            print('No valid input parameter for lammps python library location')
+            print('No valid input parameter after option -i')
             exit(1)
+
+lammpsConf = dict()
+# Read input data for the interface
+config = configparser.ConfigParser()
+config.read(inputFile)
+
+# Read configuration options from lasp2.ini
+vars = config['LAMMPS']
+for key in vars:
+    if key == 'totalsteps':
+        try:
+            lammpsConf[key] = int(vars[key])
+        except:
+            print('Invalid value for variable: ' +key)
+            exit(1)
+    elif key == 'checksteps':
+        try:
+            lammpsConf[key] = int(vars[key])
+        except:
+            print('Invalid value for variable: ' +key)
+            exit(1)
+    elif key == 'threshold':
+        try:
+            lammpsConf[key] = float(vars[key])
+        except:
+            print('Invalid value for variable: ' +key)
+            exit(1)
+    elif key == 'dirpylammps':
+        try:
+            lammpsConf[key] = str(vars[key])
+            if lammpsConf[key] == '':
+                continue
+            if not os.path.isdir(lammpsConf[key]):
+                print('LAMMPS python library could not be found: '+lammpsConf[key])
+                raise Exception('Directory not found')
+        except:
+            print('Invalid value for variable: ' +key)
+            exit(1)
+    else:
+        print('Invalid variable: '+key)
+        exit(1)
+
+if 'dirpylammps' in lammpsConf:
+    try:
+        sys.path.append(lammpsConf['dirpylammps'])
+    except:
+        print('No valid input parameter for lammps python library location')
+        exit(1)
 import lammps
-import sectionsParser
+
+numSeeds = 0
+vars = config['LASP2']
+for key in vars:
+    if key == 'numseeds':
+        try:
+            numSeeds = int(vars[key])
+        except:
+            print('Invalid value for variable: ' +key)
+            exit(1)
+
+# End import
+####################################################################################
+# ██╗░░░░░░█████╗░███╗░░░███╗███╗░░░███╗██████╗░░██████╗
+# ██║░░░░░██╔══██╗████╗░████║████╗░████║██╔══██╗██╔════╝
+# ██║░░░░░███████║██╔████╔██║██╔████╔██║██████╔╝╚█████╗░
+# ██║░░░░░██╔══██║██║╚██╔╝██║██║╚██╔╝██║██╔═══╝░░╚═══██╗
+# ███████╗██║░░██║██║░╚═╝░██║██║░╚═╝░██║██║░░░░░██████╔╝
+# ╚══════╝╚═╝░░╚═╝╚═╝░░░░░╚═╝╚═╝░░░░░╚═╝╚═╝░░░░░╚═════╝░
+
+# ██╗███╗░░██╗████████╗███████╗██████╗░███████╗░█████╗░░█████╗░███████╗
+# ██║████╗░██║╚══██╔══╝██╔════╝██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝
+# ██║██╔██╗██║░░░██║░░░█████╗░░██████╔╝█████╗░░███████║██║░░╚═╝█████╗░░
+# ██║██║╚████║░░░██║░░░██╔══╝░░██╔══██╗██╔══╝░░██╔══██║██║░░██╗██╔══╝░░
+# ██║██║░╚███║░░░██║░░░███████╗██║░░██║██║░░░░░██║░░██║╚█████╔╝███████╗
+# ╚═╝╚═╝░░╚══╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝╚═╝░░░░░╚═╝░░╚═╝░╚════╝░╚══════╝
 
 # Python script to perform a simulation with nnp potentials and check agreement
+
+####################################################################################
 
 # Function to measure the agreement between the different potentials
 def check(iteration):
     disag = 0.0
     # Disagreement measurement loop
-    seeds = [None]*5
-    forces = [None]*5
-    for b in range(5):
-        # Create 5 lammps objects with no output
-        seeds[b] = lammps.lammps(cmdargs=["-log", "none", "-screen", os.devnull,  "-nocite"])
+    seeds = [None]*numSeeds
+    forces = [None]*numSeeds
+    for b in range(numSeeds):
+        # Create numSeeds lammps objects with no output
+        seeds[b] = lammps.lammps(cmdargs=["-log", "none", "-screen", "none",  "-nocite"])
         seeds[b].command('units metal')
         seeds[b].command('boundary p p p')
         # Read the last structure of the main simulation
@@ -139,15 +218,15 @@ potentialSeed = 1 #Potential used for main simulation
 dataDir = 'Bulk.data' #Location of the structure being simulated
 #potDir = 'PotentialsComplete' ############################### TEST ####################################
 potDir = 'Training/Potentials'
-lmp = lammps.lammps()
+lmp = lammps.lammps(cmdargs=["-log", "none"])
 os.makedirs('Restart', exist_ok=True)
 
 # Training variables
 disagreement = [[],[]]
 sections = []
-threshold = 0.02001143776 * 4 #Disagreement value that will activate the training flag
-totalSteps = 300 #Total number of steps to be simulated
-checkEvery = 100 #Number of steps after which the agreement will be measured
+threshold = lammpsConf['threshold'] #Disagreement value that will activate the training flag
+totalSteps = lammpsConf['totalsteps'] #Total number of steps to be simulated
+checkEvery = lammpsConf['checkevery'] #Number of steps after which the agreement will be measured
 checkSteps = int(totalSteps / checkEvery) #Number of times the agreement will be measured
 startPoint = 0
 
@@ -162,10 +241,13 @@ for i in range(len(sys.argv)):
             exit(1)
 
 # Check if the simulation is being restarted after training
-if sys.argv[2] == 'start':
-    initialize()
-elif sys.argv[2] == 'restart':
-    restart()
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '--start':
+        initialize()
+        break
+    elif sys.argv[i] == '--restart':
+        restart()
+        break
 
 # Simulation loop
 for a in range(startPoint, checkSteps):
