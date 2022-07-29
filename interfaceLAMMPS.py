@@ -79,7 +79,7 @@ def check(iteration):
         for i in range(1, nprocs):
             comm.send(message, dest=i, tag=i)
         if disag > threshold:
-            sectionsParser.save(sections, 'Restart/sections.out')
+            sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
             MPI.Finalize()
             exit(50)
     return disag
@@ -186,7 +186,7 @@ lmp.command('write_restart Restart/tmp*.restart')
 # Measure agreement
 disag = check(a+1)
 sections.append(disagreement.copy())
-sectionsParser.save(sections, 'Restart/sections.out')
+sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
 
 # Plotting disagreement over time (Only on rank 0)
 if rank == 0:

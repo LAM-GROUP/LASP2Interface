@@ -33,18 +33,23 @@ def load(fileName='Restart/sections.npy'):
             if len(words) > 2:
                 raise Exception('Error when reading file in line: '+str(i))
                 return
-            step.append(words[0])
-            disagreement.append(words[1])
+            step.append(int(words[0]))
+            disagreement.append(float(words[1]))
     sections.append([step, disagreement])
     return sections
 
-def save(sections, fileName='sections.out', nameSim='LASP2 Simulation'):
+def save(sections, fileName='sections.out', nameSim='LASP2 Simulation', threshold='', totalSteps='', checkEvery=''):
     f = open(fileName, 'w')
     lines = []
     lines.append('# '+nameSim)
     lines.append('# This file contains the value of the disagreement measured throughout the simulation')
     lines.append('# and it is information necessary for restarting the LAMMPS simulation after each training')
-    lines.append('# It is formatted as ...')
+    lines.append('# ----------------------------------------------------------------------------------------')
+    lines.append('# threshold = '+threshold)
+    lines.append('# total number of steps = '+totalSteps)
+    lines.append('# steps between disagreement checks = '+checkEvery)
+    lines.append('# ----------------------------------------------------------------------------------------')
+    lines.append('# The format is as follows ...')
     lines.append('# ITERATION: N')
     lines.append('# step    disagreement')
     for i in range(len(sections)):
