@@ -111,7 +111,7 @@ trainings = 1
 exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
 print('LAMMPS exited with code: '+str(exitCode))
 while True:
-    if exitCode == 12800: #Exit code returned when the flag for training is activated
+    if exitCode == 256: #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
         compute(trainings)
         print('Performing NNP training             Iteration: '+str(trainings))
