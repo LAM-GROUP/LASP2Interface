@@ -106,6 +106,7 @@ trainings = 1
 
 # Begin simulation
 lammpsRun = Popen('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+lammpsRun.wait()
 exitErr = lammpsRun.stderr.read().decode()
 print('LAMMPS exited with stderr: '+exitErr)
 while True:
@@ -116,6 +117,7 @@ while True:
         training(potDirs, trainings, lasp2['numseeds'], n2p2['epochslong'])
         trainings += 1
         lammpsRun = Popen('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
     else:
         break
