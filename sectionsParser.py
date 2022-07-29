@@ -49,7 +49,7 @@ def save(sections, fileName='sections.out', nameSim='LASP2 Simulation'):
     lines.append('# step    disagreement')
     for i in range(len(sections)):
         lines.append('ITERATION: '+str(i+1))
-        for b in  range(len(sections[0])):
+        for b in  range(len(sections[i][0])):
             lines.append(str(sections[i][0][b])+'    '+str(sections[i][1][b]))
     f.write('\n'.join(lines))
     f.close()
