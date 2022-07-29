@@ -227,7 +227,7 @@ disagreement = [[],[]]
 sections = []
 threshold = lammpsConf['threshold'] #Disagreement value that will activate the training flag
 totalSteps = lammpsConf['totalsteps'] #Total number of steps to be simulated
-checkEvery = lammpsConf['checkevery'] #Number of steps after which the agreement will be measured
+checkEvery = lammpsConf['checksteps'] #Number of steps after which the agreement will be measured
 checkSteps = int(totalSteps / checkEvery) #Number of times the agreement will be measured
 startPoint = 0
 
