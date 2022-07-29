@@ -1,6 +1,8 @@
 import os
 import sys
 from sys import exit
+import subprocess
+from subprocess import Popen
 import configparser
 import ase
 import time
@@ -102,18 +104,20 @@ os.system('cp completeinput.data Training/complete0.data')
 trainings = 1
 
 # Begin simulation
-exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
-print('LAMMPS exited with code: '+str(exitCode))
+lammpsRun = Popen('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+exitErr = lammpsRun.stderr.read().decode()
+print('LAMMPS exited with stderr: '+exitErr)
 while True:
-    if exitCode == 12800: #Exit code returned when the flag for training is activated
+    if exitErr == '50': #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
         compute(trainings)
         print('Performing NNP training             Iteration: '+str(trainings))
         training(potDirs, trainings, lasp2['numseeds'], n2p2['epochslong'])
         trainings += 1
-        exitCode = os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out')
+        lammpsRun = Popen('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) python3 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        exitErr = lammpsRun.stderr.read().decode()
     else:
         break
-if exitCode == 0:
+if exitErr == '':
     print('LAMMPS interface exited successfully')
     merge(trainings-1, 'Restart/dump*.lammpstrj', 'Restart/dumpComplete.lammpstrj')
