@@ -12,13 +12,7 @@ def readLASP2():
     global lasp2
     vars = config['LASP2']
     for key in vars:
-        if key == 'numprocesses':
-            try:
-                lasp2[key] = int(vars[key])
-            except:
-                print('Invalid value for variable: ' +key)
-                exit(1)
-        elif key == 'numseeds':
+        if key == 'numseeds':
             try:
                 lasp2[key] = int(vars[key])
             except:
