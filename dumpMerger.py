@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from sys import exit
 import re
 
 # Function used to merge dump files of the different iterations
@@ -43,6 +44,7 @@ def merge(numIterations, fileNames='dump*.lammpstrj', outputFile='dumpComplete.l
         if earlier == 0:
             break
     # Write the output dumps file
+    print('Writing output file: '+outputFile)
     f = open(outputFile, 'w')
     f.writelines(outputDump)
     f.close()
