@@ -71,6 +71,21 @@ for i in range(len(sys.argv)):
         except:
             print('No valid input parameter after option -i')
             exit(1)
+    if sys.argv[i] == '--merge':
+        numDumps = 0
+        nameDump = ''
+        outputDump = ''
+        try:
+            numDumps = int(sys.argv[i+1])
+            nameDump = str(sys.argv[i+2])
+            outputDump = str(sys.argv[i+3])
+        except:
+            print('Wrong input for merging command')
+            print('Expected input:')
+            print('--merge (number of dumps) (name of dumps) (name of output)')
+            print('--merge 10 dump*.lammpstrj dumpComplete.lammpstrj')
+            exit(1)
+        merge(numDumps, nameDump, outputDump)
 
 # Dictionaries where configuration variables will be stored
 lasp2 = dict()
@@ -121,6 +136,6 @@ while True:
         exitErr = lammpsRun.stderr.read().decode()
     else:
         break
-if exitErr == '':
+if not re.match('^50', exitErr):
     print('LAMMPS interface exited successfully')
     merge(trainings-1, 'Restart/dump*.lammpstrj', 'Restart/dumpComplete.lammpstrj')
