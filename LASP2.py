@@ -75,6 +75,12 @@ for i in range(len(sys.argv)):
         numDumps = 0
         nameDump = ''
         outputDump = ''
+        if len(sys.argv) > i+4:
+            print('Error: more parameters than expected')
+            print('Expected input:')
+            print('--merge (number of dumps) (name of dumps) (name of output)')
+            print("--merge 10 'dump*.lammpstrj' dumpComplete.lammpstrj")
+            print('Name of dump files has to be given inside quotes, as to avoid using regular expressions')
         try:
             numDumps = int(sys.argv[i+1])
             nameDump = str(sys.argv[i+2])
@@ -83,7 +89,7 @@ for i in range(len(sys.argv)):
             print('Wrong input for merging command')
             print('Expected input:')
             print('--merge (number of dumps) (name of dumps) (name of output)')
-            print('--merge 10 dump*.lammpstrj dumpComplete.lammpstrj')
+            print("--merge 10 'dump*.lammpstrj' dumpComplete.lammpstrj")
             exit(1)
         merge(numDumps, nameDump, outputDump)
         exit()
