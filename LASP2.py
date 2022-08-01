@@ -86,6 +86,7 @@ for i in range(len(sys.argv)):
             print('--merge 10 dump*.lammpstrj dumpComplete.lammpstrj')
             exit(1)
         merge(numDumps, nameDump, outputDump)
+        exit()
 
 # Dictionaries where configuration variables will be stored
 lasp2 = dict()
