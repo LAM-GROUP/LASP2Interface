@@ -124,8 +124,8 @@ def training(potLoc, trainingNum, numSeeds, epochs=0):
         # Check if it has been added before
         if os.popen("grep '^use_old_weights_short' input.nn").read() == '':
             os.system("sed -i '/^elements/ a use_old_weights_short             # Start the simulation using previous weights' input.nn")
-        os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) nnp-scaling 5000 > out-scaling.txt')
-        os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) nnp-train > out-train.txt')
+        os.system('srun -n 72 nnp-scaling 5000 > out-scaling.txt')
+        os.system('srun -n 72 nnp-train > out-train.txt')
         os.chdir('../../..')
 
         # Copy last epochs of the training to the Potentials folder
