@@ -183,7 +183,6 @@ def initialize():
 
     # Read commands for the simulation to be performed
     lmp.file('input.lmp')
-    lmp.command('run 0')
 
 def restart():
     global sections
@@ -211,7 +210,6 @@ def restart():
 
     # Read commands for the simulation to be performed
     lmp.file('restart.lmp')
-    lmp.command('run 0')
 
 # MPI variables and set COMM_WORLD as communicator
 comm = MPI.COMM_WORLD
@@ -263,7 +261,7 @@ for a in range(startPoint, checkSteps):
     disag = check(a)
 
     # Advance the simulation
-    lmp.command('run '+str(checkEvery))
+    lmp.command('run '+str(checkEvery)+' start 0 stop '+str(totalSteps)+' pre no post yes')
 
 # Measure agreement of last structure in the simulation
 lmp.command('write_data Restart/check.data')
