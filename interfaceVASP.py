@@ -16,5 +16,5 @@ def compute(training):
     lammps.symbols = 'Au'+str(len(lammps))
     os.chdir(computeDir)
     vasp.write_vasp('POSCAR', lammps)
-    os.system('mpirun --bind-to core $binaire  > output_${SLURM_JOBID}')
+    os.system('time srun $(placement ${SLURM_NTASKS_PER_NODE} 1 ) $binaire  > output_${SLURM_JOBID}')
     os.chdir('../..')
