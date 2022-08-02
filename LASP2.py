@@ -127,7 +127,8 @@ os.system('cp completeinput.data Training/complete0.data')
 trainings = 1
 
 # Begin simulation
-lammpsRun = Popen('mpirun --bind-to core python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+lammpsRun = Popen('mpirun --map-by core --bind-to core python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config ' +
+                  inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
 lammpsRun.wait()
 exitErr = lammpsRun.stderr.read().decode()
 print('LAMMPS exited with stderr: '+exitErr)
@@ -138,7 +139,7 @@ while True:
         print('Performing NNP training             Iteration: '+str(trainings))
         training(potDirs, trainings, lasp2['numseeds'], n2p2['epochslong'])
         trainings += 1
-        lammpsRun = Popen('mpirun --bind-to core python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        lammpsRun = Popen('mpirun --map-by core --bind-to core python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
     else:
