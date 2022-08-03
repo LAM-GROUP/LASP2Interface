@@ -21,6 +21,12 @@ def readLASP2():
             except:
                 print('Invalid value for variable: ' +key)
                 exit(1)
+        if key == 'numprocs':
+            try:
+                lasp2[key] = int(vars[key])
+            except:
+                print('Invalid value for variable: ' + key)
+                exit(1)
         else:
             print('Invalid variable: '+key)
             exit(1)
@@ -127,18 +133,18 @@ os.system('cp completeinput.data Training/complete0.data')
 trainings = 1
 
 # Begin simulation
-lammpsRun = Popen('srun -n 72 python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
 lammpsRun.wait()
 exitErr = lammpsRun.stderr.read().decode()
 print('LAMMPS exited with stderr: '+exitErr)
 while True:
     if re.match('^50', exitErr): #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
-        compute(trainings)
+        compute(trainings, lasp2['numprocs'])
         print('Performing NNP training             Iteration: '+str(trainings))
-        training(potDirs, trainings, lasp2['numseeds'], n2p2['epochslong'])
+        training(potDirs, trainings, lasp2['numseeds'], lasp2['numprocs'], n2p2['epochslong'])
         trainings += 1
-        lammpsRun = Popen('srun -n 72 python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
     else:

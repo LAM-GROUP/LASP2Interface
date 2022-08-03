@@ -6,7 +6,7 @@ def setup_particle_types(frame, data):
         types = data.particles_.particle_types_
         types.type_by_id_(1).name = 'Au'
 
-def compute(training):
+def compute(training, numprocs):
     # Convert lammps data file to POSCAR file
     dftDir = 'DFT'
     os.makedirs(dftDir, exist_ok=True)
@@ -16,5 +16,5 @@ def compute(training):
     lammps.symbols = 'Au'+str(len(lammps))
     os.chdir(computeDir)
     vasp.write_vasp('POSCAR', lammps)
-    os.system('srun -n 72 $binaire  > output_${SLURM_JOBID}')
+    os.system('srun -n '+str(numprocs)+' $binaire  > output_${SLURM_JOBID}')
     os.chdir('../..')

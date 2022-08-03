@@ -95,10 +95,11 @@ def convert(inputFile, outputFile):
         f.write("charge {0:s}\n".format("0.0"))
         f.write("end\n")
 
-def training(potLoc, trainingNum, numSeeds, epochs=0):
+def training(potLoc, trainingNum, numSeeds, numprocs, epochs=0):
     # Convert OUTCAR file to n2p2 data
     convert('DFT/dft'+str(trainingNum)+'/OUTCAR', 'Training/train.data')
 
+    n = numprocs
     pathTrain = potLoc+'nnp'+str(trainingNum)
     os.makedirs(pathTrain, exist_ok=True)
     os.system('cat Training/complete'+str(trainingNum-1)+'.data Training/train.data > Training/complete'+str(trainingNum)+'.data')
@@ -124,8 +125,11 @@ def training(potLoc, trainingNum, numSeeds, epochs=0):
         # Check if it has been added before
         if os.popen("grep '^use_old_weights_short' input.nn").read() == '':
             os.system("sed -i '/^elements/ a use_old_weights_short             # Start the simulation using previous weights' input.nn")
-        os.system('srun -n 72 nnp-scaling 5000 > out-scaling.txt')
-        os.system('srun -n 72 nnp-train > out-train.txt')
+        structures = int(os.popen("grep -c '^begin' input.data").read()[:-1])
+        if structures < numprocs:
+            n = structures
+        os.system('srun -n '+str(n)+' nnp-scaling 5000 > out-scaling.txt')
+        os.system('srun -n '+str(n)+' nnp-train > out-train.txt')
         os.chdir('../../..')
 
         # Copy last epochs of the training to the Potentials folder
