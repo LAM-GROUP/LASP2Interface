@@ -21,7 +21,7 @@ def readLASP2():
             except:
                 print('Invalid value for variable: ' +key)
                 exit(1)
-        if key == 'numprocs':
+        elif key == 'numprocs':
             try:
                 lasp2[key] = int(vars[key])
             except:
