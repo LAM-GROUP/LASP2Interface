@@ -11,6 +11,20 @@ from interfaceN2P2 import training
 from interfaceVASP import compute
 from dumpMerger import merge
 
+class Unbuffered(object):
+   def __init__(self, stream):
+       self.stream = stream
+   def write(self, data):
+       self.stream.write(data)
+       self.stream.flush()
+   def writelines(self, datas):
+       self.stream.writelines(datas)
+       self.stream.flush()
+   def __getattr__(self, attr):
+       return getattr(self.stream, attr)
+# In order to make python output be immediately written to the slurm output file
+sys.stdout = Unbuffered(sys.stdout)
+
 def readLASP2():
     global lasp2
     vars = config['LASP2']
