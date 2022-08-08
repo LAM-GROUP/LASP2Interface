@@ -1,0 +1,10 @@
+site_name: LASP2
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../src]

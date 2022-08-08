@@ -168,6 +168,7 @@ def check(iteration):
     return disag
 
 def initialize():
+    """Initialize a new LAMMPS simulation"""
     # Main LAMMPS object to carry on the simulation
     lmp.command('units metal')
     lmp.command('boundary p p p')
