@@ -2,6 +2,8 @@ site_name: LASP2 Interface
 theme:
   name: material
 
+repo_url: https://github.com/carle13/LASP2Interface
+
 plugins:
   - search
   - mkdocstrings:
