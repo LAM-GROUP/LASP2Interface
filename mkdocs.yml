@@ -35,10 +35,16 @@ theme:
 repo_url: https://github.com/carle13/LASP2Interface  
 repo_name: carle13/LASP2Interface
 
-extra:
-  version:
-    provider: mike
-    default: stable
+# extra:
+#   version:
+#     provider: mike
+#     default: stable
+
+nav:
+  - Section:
+    - index.md
+    - Page 1: installation.md
+    - Page 2: installation.md
 
 nav:
   - "Overview": index.md
