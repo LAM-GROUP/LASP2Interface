@@ -1,6 +1,17 @@
 site_name: LASP2 Interface
+
 theme:
   name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -23,6 +34,11 @@ theme:
 
 repo_url: https://github.com/carle13/LASP2Interface  
 repo_name: carle13/LASP2Interface
+
+extra:
+  version:
+    provider: mike
+    default: stable
 
 nav:
   - "Overview": index.md
