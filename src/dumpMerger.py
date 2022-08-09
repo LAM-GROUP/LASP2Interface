@@ -22,9 +22,16 @@ def merge(numIterations, fileNames='dump*.lammpstrj', outputFile='dumpComplete.l
     # Iterate backwards to read the rest of the files
     for i in reversed(range(1, numIterations)):
         dumpFile = fileNames.replace('*', str(i))
+        # Check whether file exists or not
+        if not os.path.isfile(dumpFile):
+            print('Dump file not be found: '+dumpFile)
+            exit()
         # Get the earliest step of the next file
         steps = os.popen('grep --no-group-separator -A1 "ITEM: TIMESTEP" '+dumpFile+' | grep -v "ITEM: TIMESTEP"').read()
         steps = steps.splitlines()
+        if len(steps) == 0:
+            # This iteration produced a single point
+            continue
         first = int(steps[0])
         # If next file has an earlier step, this can be appended to the output dumps file
         if first < earlier:

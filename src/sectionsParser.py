@@ -2,8 +2,6 @@ import os
 import errno
 import re
 
-from matplotlib.pyplot import step
-
 def load(fileName='Restart/sections.npy'):
     if not os.path.isfile(fileName):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), fileName)
