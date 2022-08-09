@@ -46,9 +46,9 @@ nav:
     - Page 1: installation.md
     - Page 2: installation.md
 
-nav:
-  - "Overview": index.md
-  - "Installation": installation.md
+# nav:
+#   - "Overview": index.md
+#   - "Installation": installation.md
 
 plugins:
   - search
