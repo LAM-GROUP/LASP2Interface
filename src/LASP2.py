@@ -81,6 +81,10 @@ def readVASP():
 
 # Read input from lasp2.ini or another file indicated by the user
 inputFile = 'lasp2.ini'
+dirInterface = '###INTERFACE###'
+if not os.path.isfile(dirInterface):
+    print('Binary file for LAMMPS interface could not be found: '+dirInterface)
+    raise Exception('File error')
 for i in range(len(sys.argv)):
     if sys.argv[i] == '-i':
         try:
@@ -147,7 +151,7 @@ os.system('cp completeinput.data Training/complete0.data')
 trainings = 1
 
 # Begin simulation
-lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
 lammpsRun.wait()
 exitErr = lammpsRun.stderr.read().decode()
 print('LAMMPS exited with stderr: '+exitErr)
@@ -158,7 +162,7 @@ while True:
         print('Performing NNP training             Iteration: '+str(trainings))
         training(potDirs, trainings, lasp2['numseeds'], lasp2['numprocs'], n2p2['epochslong'])
         trainings += 1
-        lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' python3.7 /tmpdir/fresseco/install/LASP2Interface/interfaceLAMMPS.py --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
     else:
