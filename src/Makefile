@@ -22,4 +22,4 @@ install:
 	. $(PROJECT_ENV)/bin/activate; pyinstaller interfaceLAMMPS.py --distpath ../bin
 	sed -i 's|###INTERFACE###|$(PROJECT_BIN)/interfaceLAMMPS/interfaceLAMMPS|g' LASP2.py
 	. $(PROJECT_ENV)/bin/activate; pyinstaller LASP2.py --distpath ../bin
-	. cd ../bin; ln -s LASP2/LASP2 ./
+	cd ../bin; ln -s LASP2/LASP2 ./
