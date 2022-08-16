@@ -1,7 +1,7 @@
 # LASP2 installation makefile
 
-SHELL = /bin/bash
-PYTHON = python
+SHELL=/bin/bash
+PYTHON=python3
 
 PROJECT_DIR=$(abspath ..)
 PROJECT_BIN=$(PROJECT_DIR)/bin
