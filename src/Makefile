@@ -18,7 +18,7 @@ INSTALL_BIN=$(HOME)/local/bin
 ##########
 install:
 	@$(PYTHON) -m venv $(PROJECT_ENV)
-	. $(PROJECT_ENV)/bin/activate; pip install -Ur requirements.txt
+	. $(PROJECT_ENV)/bin/activate; pip install -Ur ../lib/requirements.txt
 	. $(PROJECT_ENV)/bin/activate; pyinstaller interfaceLAMMPS.py --distpath ../bin
 	sed -i 's/###INTERFACE###/$(PROJECT_BIN)\/interfaceLAMMPS\/interfaceLAMMPS/g' LASP2.py
 	. $(PROJECT_ENV)/bin/activate; pyinstaller LASP2.py --distpath ../bin
