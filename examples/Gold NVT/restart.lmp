@@ -1,0 +1,19 @@
+# Read restart file for starting point
+####### read_restart MUST NOT BE CHANGED #########
+read_restart Restart/tmp${restartStep}.restart
+
+# Setup n2p2 potential
+##### THE POTENTIALS MUST BE READ FROM Training/Potentials/Seed${seed} ####################################################
+pair_style hdnnp 6.0 dir Training/Potentials/Seed1 showew no showewsum 0 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0
+pair_coeff * * Au
+
+neighbor	0.3 bin
+neigh_modify	every 20 delay 0 check no
+
+#velocity	all create 1000.0 87287
+fix 1 all nvt temp 1000.0 1000.0 0.1
+
+dump              myDump all custom 10  dump${iteration}.lammpstrj id type x y z fx fy fz
+dump_modify    	  myDump sort id
+
+thermo		10

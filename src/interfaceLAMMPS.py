@@ -72,11 +72,18 @@ if 'dirpylammps' in lammpsConf:
 import lammps
 
 numSeeds = 0
+simName = 'LASP2 simulation'
 vars = config['LASP2']
 for key in vars:
     if key == 'numseeds':
         try:
             numSeeds = int(vars[key])
+        except:
+            print('Invalid value for variable: ' +key)
+            exit(1)
+    if key == 'simname':
+        try:
+            simName = str(vars[key])
         except:
             print('Invalid value for variable: ' +key)
             exit(1)
@@ -103,23 +110,36 @@ for key in vars:
 
 ####################################################################################
 
+class Unbuffered(object):
+   def __init__(self, stream):
+       self.stream = stream
+   def write(self, data):
+       self.stream.write(data)
+       self.stream.flush()
+   def writelines(self, datas):
+       self.stream.writelines(datas)
+       self.stream.flush()
+   def __getattr__(self, attr):
+       return getattr(self.stream, attr)
+# In order to make python output be immediately written to the slurm output file
+sys.stdout = Unbuffered(sys.stdout)
+
 # Function to measure the agreement between the different potentials
 def check(iteration):
+    """Check dispersion by measuring forces with different potentials"""
     disag = 0.0
-    # Disagreement measurement loop
+    # Dispersion measurement loop
     seeds = [None]*numSeeds
     forces = [None]*numSeeds
     for b in range(numSeeds):
         # Create numSeeds lammps objects with no output
         seeds[b] = lammps.lammps(cmdargs=["-log", "none", "-screen", "none",  "-nocite"])
-        seeds[b].command('units metal')
-        seeds[b].command('boundary p p p')
-        # Read the last structure of the main simulation
-        seeds[b].command('read_data Restart/check.data')
+        # Set seed number
+        seeds[b].command('variable seed internal '+str(b))
 
-        # Setup potentials with different random seeds for each lammps object
-        seeds[b].command('pair_style hdnnp 6.0 dir '+potDir+'/Seed'+str(b+1)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0')
-        seeds[b].command('pair_coeff * * Au')
+        # Read commands for the simulation to be performed
+        seeds[b].file('check.lmp')
+
         # Perform an empty step to calculate forces
         seeds[b].command('run 0')
         # Extract forces and destroy temporary lammps object
@@ -149,14 +169,18 @@ def check(iteration):
             exit()
     
     if rank == 0:
-        disagreement[0].append(iteration*checkEvery)
-        disagreement[1].append(disag)
+        dispersion[0].append(iteration*checkEvery)
+        dispersion[1].append(disag)
+        print('############ LASP2 #############')
+        print('step                  dispersion')
+        print(str(iteration*checkEvery)+'        '+str(disag))
+        print('################################')
         # Flag activation
         message = 0
         if disag > threshold:
-            sections.append(disagreement.copy())
+            sections.append(dispersion.copy())
             message = 1
-            # Disagreement is too high
+            # Dispersion is too high
             # DFT calculations will be performed and potentials will be trained
         for i in range(1, nprocs):
             comm.send(message, dest=i, tag=i)
@@ -169,65 +193,50 @@ def check(iteration):
 
 def initialize():
     """Initialize a new LAMMPS simulation"""
-    # Main LAMMPS object to carry on the simulation
-    lmp.command('units metal')
-    lmp.command('boundary p p p')
-    lmp.command('read_data '+dataDir)
-
-    # Setup n2p2 potential
-    lmp.command('pair_style hdnnp 6.0 dir '+potDir+'/Seed'+str(potentialSeed)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0')
-    lmp.command('pair_coeff * * Au')
-
-    # Setup internal dump
-    lmp.command('dump              dumpInternalLASP2 all custom 10  Restart/dump${iteration}.lammpstrj id type x y z fx fy fz')
-    lmp.command('dump_modify    	  dumpInternalLASP2 sort id')
-
     # Read commands for the simulation to be performed
     lmp.file('input.lmp')
 
+    # Setup internal dump
+    lmp.command('dump              dumpInternalLASP2 all custom '+str(checkEvery)+' Restart/dump${iteration}.lammpstrj id type x y z fx fy fz')
+    lmp.command('dump_modify    	  dumpInternalLASP2 sort id')
+
 def restart():
+    """Restart LAMMPS simulation after training"""
     global sections
     global startPoint
-    global threshold
-    #threshold = 0.2 ################################################## TEST #################################
-    if rank == 0:
+    
+    # Read file containing the dispersion at each step and get the number of step
+    if rank == 0: #Only read with one process
         sections = sectionsParser.load('Restart/sections.out')
         startPoint = int(sections[-1][0][-1] / checkEvery) - 1
         if startPoint < 0:
             startPoint = 0
+        # Send starting steps to the other processes
         for i in range(1, nprocs):
             comm.send(startPoint, dest=i, tag=i)
-    else:
+    else: #Other processes wait to receive the starting step
         startPoint = comm.recv(source = 0, tag = rank)
-    lmp.command('read_restart Restart/tmp'+str(startPoint*checkEvery)+'.restart')
-    
-    # Setup n2p2 potential
-    lmp.command('pair_style hdnnp 6.0 dir '+potDir+'/Seed'+str(potentialSeed)+' showew no showewsum 100 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0')
-    lmp.command('pair_coeff * * Au')
 
-    # Setup internal dump
-    lmp.command('dump              dumpInternalLASP2 all custom 10  Restart/dump${iteration}.lammpstrj id type x y z fx fy fz')
-    lmp.command('dump_modify    	  dumpInternalLASP2 sort id')
+    lmp.command('variable restartStep internal '+str(startPoint*checkEvery))
 
     # Read commands for the simulation to be performed
     lmp.file('restart.lmp')
+
+    # Setup internal dump
+    lmp.command('dump              dumpInternalLASP2 all custom '+str(checkEvery)+' Restart/dump${iteration}.lammpstrj id type x y z fx fy fz')
+    lmp.command('dump_modify    	  dumpInternalLASP2 sort id')
 
 # MPI variables and set COMM_WORLD as communicator
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 nprocs = comm.Get_size()
 
-potentialSeed = 1 #Potential used for main simulation
-dataDir = 'Bulk.data' #Location of the structure being simulated
-#potDir = 'PotentialsComplete' ############################### TEST ####################################
-potDir = 'Training/Potentials'
 lmp = lammps.lammps(cmdargs=["-log", "none"])
-os.makedirs('Restart', exist_ok=True)
 
 # Training variables
-disagreement = [[],[]]
+dispersion = [[],[]]
 sections = []
-threshold = lammpsConf['threshold'] #Disagreement value that will activate the training flag
+threshold = lammpsConf['threshold'] #Dispersion value that will activate the training flag
 totalSteps = lammpsConf['totalsteps'] #Total number of steps to be simulated
 checkEvery = lammpsConf['checksteps'] #Number of steps after which the agreement will be measured
 checkSteps = int(totalSteps / checkEvery) #Number of times the agreement will be measured
@@ -271,10 +280,10 @@ lmp.command('write_restart Restart/tmp*.restart')
 # Measure agreement
 disag = check(a+1)
 if rank == 0:
-    sections.append(disagreement.copy())
+    sections.append(dispersion.copy())
     sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
 
-# Plotting disagreement over time (Only on rank 0)
+# Plotting dispersion over time (Only on rank 0)
 if rank == 0:
     def hex_to_RGB(hex_str):
         """ #FFFFFF -> [255,255,255]"""
@@ -295,8 +304,8 @@ if rank == 0:
     plt.rcParams["axes.prop_cycle"] = plt.cycler("color", plt.cm.Dark2.colors)
     fig, ax1 = plt.subplots()
 
-    ax1.set_title('Evolution (100) Au (T = 1000)')
-    ax1.set_ylabel('Disagreement')
+    ax1.set_title(simName)
+    ax1.set_ylabel('Dispersion')
     ax1.set_xlabel('Timestep')
 
     colors = get_color_gradient("#FF0000", "#0000FF", len(sections))
@@ -304,7 +313,7 @@ if rank == 0:
         ax1.plot(sections[i][0], sections[i][1], c=colors[i], marker='o', ls=':')
     ax1.axhline(threshold, ls='--', color='black')
 
-    fig.savefig('timeAgreement.png')
+    fig.savefig('simulationDispersion.png')
     print('Simulation Completed')
 
 # End of the program

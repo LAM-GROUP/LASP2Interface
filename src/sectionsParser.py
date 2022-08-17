@@ -12,7 +12,7 @@ def load(fileName='Restart/sections.npy'):
     sections = []
     reading = False
     step = []
-    disagreement = []
+    dispersion = []
     for i in range(len(lines)):
         words = lines[i].split()
         if len(words) == 0:
@@ -21,9 +21,9 @@ def load(fileName='Restart/sections.npy'):
             continue
         if words[0] == 'ITERATION:':
             if reading:
-                sections.append([step, disagreement])
+                sections.append([step, dispersion])
                 step = []
-                disagreement = []
+                dispersion = []
             else:
                 reading = True
             continue
@@ -32,24 +32,24 @@ def load(fileName='Restart/sections.npy'):
                 raise Exception('Error when reading file in line: '+str(i))
                 return
             step.append(int(words[0]))
-            disagreement.append(float(words[1]))
-    sections.append([step, disagreement])
+            dispersion.append(float(words[1]))
+    sections.append([step, dispersion])
     return sections
 
 def save(sections, fileName='sections.out', nameSim='LASP2 Simulation', threshold='', totalSteps='', checkEvery=''):
     f = open(fileName, 'w')
     lines = []
     lines.append('# '+nameSim)
-    lines.append('# This file contains the value of the disagreement measured throughout the simulation')
+    lines.append('# This file contains the value of the dispersion measured throughout the simulation')
     lines.append('# and it is information necessary for restarting the LAMMPS simulation after each training')
     lines.append('# ----------------------------------------------------------------------------------------')
     lines.append('# threshold = '+threshold)
     lines.append('# total number of steps = '+totalSteps)
-    lines.append('# steps between disagreement checks = '+checkEvery)
+    lines.append('# steps between dispersion checks = '+checkEvery)
     lines.append('# ----------------------------------------------------------------------------------------')
     lines.append('# The format is as follows ...')
     lines.append('# ITERATION: N')
-    lines.append('# step    disagreement')
+    lines.append('# step    dispersion')
     lines.append('')
     for i in range(len(sections)):
         lines.append('ITERATION: '+str(i+1))

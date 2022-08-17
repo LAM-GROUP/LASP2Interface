@@ -1,5 +1,21 @@
 import numpy as np
 import os
+import configparser
+
+epochs = 100
+def readN2P2(inputFile):
+    global epochs
+    # Read input data for the interface
+    config = configparser.ConfigParser()
+    config.read(inputFile)
+    vars = config['N2P2']
+    for key in vars:
+        if key == 'epochslong':
+            try:
+                n2p2[key] = int(vars[key])
+            except:
+                print('Invalid value for variable: ' +key)
+                exit(1)
 
 def convert(inputFile, outputFile):
     # n2p2 - A neural network potential package
@@ -95,7 +111,7 @@ def convert(inputFile, outputFile):
         f.write("charge {0:s}\n".format("0.0"))
         f.write("end\n")
 
-def training(potLoc, trainingNum, numSeeds, numprocs, epochs=0):
+def training(exec, potLoc, trainingNum, numSeeds, numprocs):
     # Convert OUTCAR file to n2p2 data
     convert('DFT/dft'+str(trainingNum)+'/OUTCAR', 'Training/train.data')
 
@@ -128,8 +144,8 @@ def training(potLoc, trainingNum, numSeeds, numprocs, epochs=0):
         structures = int(os.popen("grep -c '^begin' input.data").read()[:-1])
         if structures < numprocs:
             n = structures
-        os.system('srun -n '+str(n)+' nnp-scaling 5000 > out-scaling.txt')
-        os.system('srun -n '+str(n)+' nnp-train > out-train.txt')
+        os.system(exec+' -n '+str(n)+' nnp-scaling 5000 > out-scaling.txt')
+        os.system(exec+' -n '+str(n)+' nnp-train > out-train.txt')
         os.chdir('../../..')
 
         # Copy last epochs of the training to the Potentials folder

@@ -7,8 +7,8 @@ import re
 import configparser
 import ase
 import time
-from interfaceN2P2 import training
-from interfaceVASP import compute
+import interfaceN2P2
+import interfaceVASP
 from dumpMerger import merge
 
 class Unbuffered(object):
@@ -41,43 +41,28 @@ def readLASP2():
             except:
                 print('Invalid value for variable: ' + key)
                 exit(1)
-        else:
-            print('Invalid variable: '+key)
-            exit(1)
-
-def readN2P2():
-    global n2p2
-    vars = config['N2P2']
-    for key in vars:
-        if key == 'dirpotentials':
+        elif key == 'exec':
             try:
-                n2p2[key] = str(vars[key])
-                if not os.path.isdir(n2p2[key]):
+                lasp2[key] = str(vars[key])
+            except:
+                print('Invalid value for variable: ' + key)
+                exit(1)
+        elif key == 'dirpotentials':
+            try:
+                lasp2[key] = str(vars[key])
+                if not os.path.isdir(lasp2[key]):
                     print('Directory of potentials was not found')
                     raise Exception('Directory not found')
                 numSeeds = lasp2['numseeds']
                 for i in range(1, numSeeds+1):
-                    if not os.path.isdir(os.path.join(n2p2[key], 'Seed'+str(i))):
+                    if not os.path.isdir(os.path.join(lasp2[key], 'Seed'+str(i))):
                         print('Seed'+str(i)+' not found')
                         raise Exception('Seed not found')
             except:
                 print('Invalid value for variable: ' +key)
-        elif key == 'epochslong':
-            try:
-                n2p2[key] = int(vars[key])
-            except:
-                print('Invalid value for variable: ' +key)
-                exit(1)
-
-def readVASP():
-    global vasp
-    vars = config['VASP']
-    for key in vars:
-        if key == 'numProcesses':
-            try:
-                vasp[key] = int(vars[key])
-            except:
-                print('Invalid value for variable: ' +key)
+        else:
+            print('Invalid variable: '+key)
+            exit(1)
 
 # Read input from lasp2.ini or another file indicated by the user
 inputFile = 'lasp2.ini'
@@ -118,11 +103,8 @@ for i in range(len(sys.argv)):
         merge(numDumps, nameDump, outputDump)
         exit()
 
-# Dictionaries where configuration variables will be stored
+# Dictionary where configuration variables will be stored
 lasp2 = dict()
-n2p2 = dict()
-vasp = dict()
-
 # Read input data for the interface
 config = configparser.ConfigParser()
 config.read(inputFile)
@@ -132,9 +114,9 @@ for section in config:
     elif section == 'LAMMPS':
         continue
     elif section == 'N2P2':
-        readN2P2()
+        interfaceN2P2.readN2P2(inputFile)
     elif section == 'VASP':
-        print('Found variables for VASP')
+        interfaceVASP.readVASP(inputFile)
     elif section == 'DEFAULT':
         if len(config[section]) > 0:
             print('Undefined section found: DEFAULT')
@@ -145,24 +127,25 @@ for section in config:
 
 potDirs = 'Training/' #Training files produced during the simulation
 os.makedirs(potDirs, exist_ok=True)
-potInitial = n2p2['dirpotentials']
+os.makedirs('Restart', exist_ok=True)
+potInitial = lasp2['dirpotentials']
 os.system('cp -r '+potInitial+' '+potDirs+'Potentials')
 os.system('cp completeinput.data Training/complete0.data')
 trainings = 1
 
 # Begin simulation
-lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
 lammpsRun.wait()
 exitErr = lammpsRun.stderr.read().decode()
 print('LAMMPS exited with stderr: '+exitErr)
 while True:
     if re.match('^50', exitErr): #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
-        compute(trainings, lasp2['numprocs'])
+        interfaceVASP.compute(lasp2['exec'], trainings, lasp2['numprocs'])
         print('Performing NNP training             Iteration: '+str(trainings))
-        training(potDirs, trainings, lasp2['numseeds'], lasp2['numprocs'], n2p2['epochslong'])
+        interfaceN2P2.training(lasp2['exec'], potDirs, trainings, lasp2['numseeds'], lasp2['numprocs'])
         trainings += 1
-        lammpsRun = Popen('srun -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
     else:

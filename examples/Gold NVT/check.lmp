@@ -1,0 +1,10 @@
+units metal
+boundary p p p
+# Read the last structure of the main simulation
+####### read_data MUST NOT BE CHANGED #########
+read_data Restart/check.data
+
+# Setup potentials with different random seeds for each lammps object
+##### THE POTENTIALS MUST BE READ FROM Training/Potentials/Seed${seed} ####################################################
+pair_style hdnnp 6.0 dir Training/Potentials/Seed${seed} showew no showewsum 0 resetew no maxew 10000000 cflength 1.0 cfenergy 1.0
+pair_coeff * * Au
