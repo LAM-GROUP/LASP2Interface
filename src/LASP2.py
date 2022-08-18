@@ -60,7 +60,7 @@ def readLASP2():
                         raise Exception('Seed not found')
             except:
                 print('Invalid value for variable: ' +key)
-        if key == 'dirdatabase':
+        elif key == 'dirdatabase':
             try:
                 lasp2[key] = str(vars[key])
                 if not os.path.isfile(lasp2[key]):
