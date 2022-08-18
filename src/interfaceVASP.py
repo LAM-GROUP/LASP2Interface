@@ -4,6 +4,7 @@ from ase.io import lammpsdata
 import configparser
 
 binVasp = 'vasp_std'
+elements = []
 def readVASP(inputFile):
     global binVasp
     # Read input data for the interface
@@ -19,6 +20,11 @@ def readVASP(inputFile):
                 #     raise Exception('File error')
             except:
                 print('Invalid value for variable: ' +key)
+        if key == 'elements':
+            try:
+                elements = vars[key].split()
+            except:
+                print('Invalid value for variable: ' +key)
 
 def setup_particle_types(frame, data):
     types = data.particles_.particle_types_
@@ -31,7 +37,28 @@ def compute(exec, training, numprocs):
     computeDir = os.path.join(dftDir, 'dft'+str(training))
     os.system('cp -r vaspInput '+computeDir)
     lammps = lammpsdata.read_lammps_data('Restart/check.data',  style='atomic')
-    lammps.symbols = 'Au'+str(len(lammps))
+    
+    #Count lammps types and assign elements
+    ids = lammps.get_atomic_numbers()
+    amounts = []
+    t = ids[0]
+    count = 0
+    for i in range(len(ids)):
+        if ids[i] == t:
+                count += 1
+        else:
+                amounts.append(count)
+                count = 1
+                t = ids[i]
+    amounts.append(count)
+    if len(amounts) != len(elements):
+        print('Number of elements is not the same than number of types in LAMMPS')
+        exit(1)
+    symbols = ''
+    for i in range(len(elements)):
+        symbols += elements[i] + str(amounts[i])
+    lammps.symbols = symbols
+
     os.chdir(computeDir)
     vasp.write_vasp('POSCAR', lammps)
     os.system(exec+' -n '+str(numprocs)+' '+binVasp+' > out-dft.txt')
