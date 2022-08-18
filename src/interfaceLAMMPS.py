@@ -174,10 +174,12 @@ def check(iteration):
         print('############ LASP2 #############')
         print('step                  dispersion')
         print(str(iteration*checkEvery)+'        '+str(disag))
-        print('################################')
         # Flag activation
         message = 0
         if disag > threshold:
+            print('DISPERSION IS LARGER THAN THRESHOLD!')
+            print('Threshold value: '+str(threshold))
+            print('SIMULATION WILL BE INTERRUPTED AND TRAINING WILL TAKE PLACE')
             sections.append(dispersion.copy())
             message = 1
             # Dispersion is too high
@@ -189,6 +191,7 @@ def check(iteration):
             print('50', file=sys.stderr)
             MPI.Finalize()
             exit()
+        print('################################')
     return disag
 
 def initialize():
@@ -294,12 +297,14 @@ if rank == 0:
         Given two hex colors, returns a color gradient
         with n colors.
         """
-        assert n > 1
-        c1_rgb = np.array(hex_to_RGB(c1))/255
-        c2_rgb = np.array(hex_to_RGB(c2))/255
-        mix_pcts = [x/(n-1) for x in range(n)]
-        rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
-        return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
+        if n > 1:
+            c1_rgb = np.array(hex_to_RGB(c1))/255
+            c2_rgb = np.array(hex_to_RGB(c2))/255
+            mix_pcts = [x/(n-1) for x in range(n)]
+            rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
+            return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
+        elif n == 1:
+            return [c1]
 
     plt.rcParams["axes.prop_cycle"] = plt.cycler("color", plt.cm.Dark2.colors)
     fig, ax1 = plt.subplots()

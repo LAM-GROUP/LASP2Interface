@@ -28,8 +28,15 @@ sys.stdout = Unbuffered(sys.stdout)
 def readLASP2():
     global lasp2
     vars = config['LASP2']
+    lasp2['simname'] = 'LASP2 Simulation'
     for key in vars:
-        if key == 'numseeds':
+        if key == 'simname':
+            try:
+                lasp2[key] = str(vars[key])
+            except:
+                print('Invalid value for variable: ' +key)
+                exit(1)
+        elif key == 'numseeds':
             try:
                 lasp2[key] = int(vars[key])
             except:
@@ -160,4 +167,7 @@ while True:
         break
 if not re.match('^50', exitErr):
     print('LAMMPS interface exited successfully')
-    merge(trainings-1, 'Restart/dump*.lammpstrj', 'Restart/dumpComplete.lammpstrj')
+    if trainings != 1:
+        merge(trainings, 'Restart/dump*.lammpstrj', 'Restart/dumpComplete.lammpstrj')
+    else:
+        os.system('cp Restart/dump1.lammpstrj Restart/dumpComplete.lammpstrj')
