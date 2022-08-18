@@ -184,6 +184,7 @@ def check(iteration):
             message = 1
             # Dispersion is too high
             # DFT calculations will be performed and potentials will be trained
+        print('################################')
         for i in range(1, nprocs):
             comm.send(message, dest=i, tag=i)
         if disag > threshold:
@@ -191,7 +192,6 @@ def check(iteration):
             print('50', file=sys.stderr)
             MPI.Finalize()
             exit()
-        print('################################')
     return disag
 
 def initialize():

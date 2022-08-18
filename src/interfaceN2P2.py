@@ -121,7 +121,7 @@ def training(exec, potLoc, trainingNum, numSeeds, numprocs):
     os.system('cat Training/complete'+str(trainingNum-1)+'.data Training/train.data > Training/complete'+str(trainingNum)+'.data')
     for i in range(1, numSeeds+1):
         os.makedirs(pathTrain+'/Seed'+str(i), exist_ok=True)
-        os.system('cp trainingInput/Seed'+str(i)+'/input.nn '+pathTrain+'/Seed'+str(i)+'/')
+        os.system('cp Training/Potentials/Seed'+str(i)+'/input.nn '+pathTrain+'/Seed'+str(i)+'/')
         os.system('cp Training/complete'+str(trainingNum)+'.data '+pathTrain+'/Seed'+str(i)+'/input.data')
         os.system('cp Training/Potentials/Seed'+str(i)+'/weights.079.data '+pathTrain+'/Seed'+str(i)+'/')
         os.chdir(pathTrain+'/Seed'+str(i))
