@@ -135,7 +135,7 @@ def check(iteration):
         # Create numSeeds lammps objects with no output
         seeds[b] = lammps.lammps(cmdargs=["-log", "none", "-screen", "none",  "-nocite"])
         # Set seed number
-        seeds[b].command('variable seed internal '+str(b))
+        seeds[b].command('variable seed internal '+str(b+1))
 
         # Read commands for the simulation to be performed
         seeds[b].file('check.lmp')
