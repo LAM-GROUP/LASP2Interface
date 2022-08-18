@@ -14,9 +14,9 @@ def readVASP(inputFile):
         if key == 'binvasp':
             try:
                 binVasp = str(vars[key])
-                if not os.path.isfile(binVasp):
-                    print('Binary file for VASP could not be found: '+binVasp)
-                    raise Exception('File error')
+                # if not os.path.isfile(binVasp):
+                #     print('Binary file for VASP could not be found: '+binVasp)
+                #     raise Exception('File error')
             except:
                 print('Invalid value for variable: ' +key)
 
