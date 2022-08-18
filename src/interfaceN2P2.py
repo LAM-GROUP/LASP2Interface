@@ -12,7 +12,7 @@ def readN2P2(inputFile):
     for key in vars:
         if key == 'epochslong':
             try:
-                n2p2[key] = int(vars[key])
+                epochs = int(vars[key])
             except:
                 print('Invalid value for variable: ' +key)
                 exit(1)

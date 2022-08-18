@@ -60,6 +60,14 @@ def readLASP2():
                         raise Exception('Seed not found')
             except:
                 print('Invalid value for variable: ' +key)
+        if key == 'dirdatabase':
+            try:
+                lasp2[key] = str(vars[key])
+                if not os.path.isfile(lasp2[key]):
+                    print('n2p2 database file could not be found: '+lasp2[key])
+                    raise Exception('File error')
+            except:
+                print('Invalid value for variable: ' + key)
         else:
             print('Invalid variable: '+key)
             exit(1)
@@ -130,7 +138,7 @@ os.makedirs(potDirs, exist_ok=True)
 os.makedirs('Restart', exist_ok=True)
 potInitial = lasp2['dirpotentials']
 os.system('cp -r '+potInitial+' '+potDirs+'Potentials')
-os.system('cp completeinput.data Training/complete0.data')
+os.system('cp '+lasp2['dirdatabase']+' Training/complete0.data')
 trainings = 1
 
 # Begin simulation
