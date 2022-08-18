@@ -22,4 +22,4 @@ install:
 	. $(PROJECT_ENV)/bin/activate; pyinstaller interfaceLAMMPS.py --distpath ../bin --noconfirm
 	sed -i "s|^dirInterface = '[^']*'|dirInterface = '$(PROJECT_BIN)/interfaceLAMMPS/interfaceLAMMPS'|g" LASP2.py
 	. $(PROJECT_ENV)/bin/activate; pyinstaller LASP2.py --distpath ../bin --noconfirm
-	cd ../bin; ln -s LASP2/LASP2 ./lasp2
+	cd ../bin; ln -f -s LASP2/LASP2 ./lasp2
