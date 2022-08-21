@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import configparser
+import sys
 
 #List of element names to obtain the element numbers
 elementsAll = [
@@ -33,7 +34,7 @@ def readN2P2(inputFile):
                 epochs = int(vars[key])
             except:
                 print('Invalid value for variable: ' +key)
-                exit(1)
+                sys.exit(1)
         if key == 'binscaling':
             try:
                 binScaling = str(vars[key])
@@ -52,7 +53,7 @@ def readN2P2(inputFile):
                 print('Invalid value for variable: ' +key)
         else:
             print('Invalid variable: '+key)
-            exit(1)
+            sys.exit(1)
     
     global elements
     global elementNums
