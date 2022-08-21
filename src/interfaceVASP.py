@@ -25,6 +25,8 @@ def readVASP(inputFile):
         elif key == 'elements':
             try:
                 elements = vars[key].split()
+                print('elements found are:')
+                print(elements)
             except:
                 print('Invalid value for variable: ' +key)
         else:
