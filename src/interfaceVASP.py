@@ -2,6 +2,7 @@ import os
 from ase.io import vasp
 from ase.io import lammpsdata
 import configparser
+import sys
 
 binVasp = 'vasp_std'
 elements = []
@@ -28,7 +29,7 @@ def readVASP(inputFile):
                 print('Invalid value for variable: ' +key)
         else:
             print('Invalid variable: '+key)
-            exit(1)
+            sys.exit(1)
 
 def compute(exec, training, numprocs):
     # Convert lammps data file to POSCAR file
@@ -53,7 +54,7 @@ def compute(exec, training, numprocs):
     amounts.append(count)
     if len(amounts) != len(elements):
         print('Number of elements is not the same than number of types in LAMMPS')
-        exit(1)
+        sys.exit(1)
     symbols = ''
     for i in range(len(elements)):
         symbols += elements[i] + str(amounts[i])
