@@ -35,7 +35,7 @@ def readN2P2(inputFile):
             except:
                 print('Invalid value for variable: ' +key)
                 sys.exit(1)
-        if key == 'binscaling':
+        elif key == 'binscaling':
             try:
                 binScaling = str(vars[key])
                 # if not os.path.isfile(binVasp):
@@ -43,7 +43,7 @@ def readN2P2(inputFile):
                 #     raise Exception('File error')
             except:
                 print('Invalid value for variable: ' + key)
-        if key == 'bintraining':
+        elif key == 'bintraining':
             try:
                 binTraining = str(vars[key])
                 # if not os.path.isfile(binVasp):
