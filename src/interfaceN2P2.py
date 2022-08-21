@@ -2,6 +2,20 @@ import numpy as np
 import os
 import configparser
 
+#List of element names to obtain the element numbers
+elementsAll = [
+    "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al",
+    "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe",
+    "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y",
+    "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te",
+    "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb",
+    "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt",
+    "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa",
+    "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No"
+]
+elements = []
+elementNums = []
+
 epochs = 100
 binScaling = 'nnp-scaling'
 binTraining = 'nnp-train'
@@ -39,6 +53,19 @@ def readN2P2(inputFile):
         else:
             print('Invalid variable: '+key)
             exit(1)
+    
+    global elements
+    global elementNums
+    vars = config['VASP']
+    for key in vars:
+        if key == 'elements':
+            try:
+                elements = vars[key].split()
+                for element in elements:
+                    elementNums.append(elementsAll.index(element)+1)
+            except:
+                print('Invalid value for variable: ' + key)
+                print('List of elements is not readable or elements do not match with known elements')
 
 def convert(inputFile, outputFile):
     # n2p2 - A neural network potential package
@@ -172,7 +199,8 @@ def training(exec, trainingNum, numSeeds, numprocs):
         os.chdir('../../..')
 
         # Copy last epochs of the training to the Potentials folder
-        os.system('cp '+pathTrain+'/Seed'+str(i)+'/weights.079.{:06d}'.format(numEpochs)+'.out Training/Potentials/Seed'+str(i)+'/weights.079.data')
+        for num in elementNums:
+            os.system('cp '+pathTrain+'/Seed'+str(i)+'/weights.{:03d}'.format(num)+'.{:06d}'.format(numEpochs)+'.out Training/Potentials/Seed'+str(i)+'/weights.079.data')
         os.system('cp '+pathTrain+'/Seed'+str(i)+'/input.nn Training/Potentials/Seed'+str(i)+'/')
         os.system('cp '+pathTrain+'/Seed'+str(i)+'/scaling.data Training/Potentials/Seed'+str(i)+'/')
         os.system('cp '+pathTrain+'/Seed'+str(i)+'/nnp-train.log.0000 Training/Potentials/Seed'+str(i)+'/')
