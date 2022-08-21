@@ -1,3 +1,4 @@
+from genericpath import isdir
 import os
 import sys
 from sys import exit
@@ -5,6 +6,7 @@ import subprocess
 from subprocess import Popen
 import re
 import configparser
+import sectionsParser
 import ase
 import time
 import interfaceN2P2
@@ -82,6 +84,7 @@ def readLASP2():
 # Read input from lasp2.ini or another file indicated by the user
 inputFile = 'lasp2.ini'
 dirInterface = '###INTERFACE###'
+restart = False
 if not os.path.isfile(dirInterface):
     print('Binary file for LAMMPS interface could not be found: '+dirInterface)
     raise Exception('File error')
@@ -117,6 +120,8 @@ for i in range(len(sys.argv)):
             exit(1)
         merge(numDumps, nameDump, outputDump)
         exit()
+    if sys.argv[i] == '--restart':
+        restart = True
 
 # Dictionary where configuration variables will be stored
 lasp2 = dict()
@@ -140,34 +145,61 @@ for section in config:
         print('Undefined section found: ' + section)
         exit(1)
 
-potDirs = 'Training/' #Training files produced during the simulation
-os.makedirs(potDirs, exist_ok=True)
-os.makedirs('Restart', exist_ok=True)
 potInitial = lasp2['dirpotentials']
-os.system('cp -r '+potInitial+' '+potDirs+'Potentials')
-os.system('cp '+lasp2['dirdatabase']+' Training/complete0.data')
-trainings = 1
 
-# Begin simulation
-lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
-lammpsRun.wait()
-exitErr = lammpsRun.stderr.read().decode()
-print('LAMMPS exited with stderr: '+exitErr)
+if restart:
+    print('Simulation is being restarted')
+    sections = sectionsParser.load('Restart/sections.out')
+    trainings = len(sections)
+    if os.path.isdir('Training/nnp'+str(trainings)): #If this directory exists DFT finished successfully
+        print('DFT calculation was performed before')
+        if os.path.isfile('lammps_'+str(trainings)+'.out'):
+            print('Training was performed')
+    else:
+        if os.path.isdir('DFT/dft'+str(trainings)): #If this directory exists lammps finished successfully
+            print('Performing DFT calculations         Iteration: '+str(trainings))
+            interfaceVASP.compute(lasp2['exec'], trainings, lasp2['numprocs'])
+            print('Performing NNP training             Iteration: '+str(trainings))
+            interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
+            trainings += 1
+            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+            lammpsRun.wait()
+            exitErr = lammpsRun.stderr.read().decode()
+        else: #If not, then lammps must be rerun for trainings+1
+            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+            lammpsRun.wait()
+            exitErr = lammpsRun.stderr.read().decode()
+else:
+    print('LASP2 simulation starting')
+    os.makedirs('Training/', exist_ok=True)
+    os.makedirs('Restart', exist_ok=True)
+    os.system('cp -r '+potInitial+' Training/Potentials')
+    os.system('cp '+lasp2['dirdatabase']+' Training/complete0.data')
+    trainings = 1
+    # Begin running LAMMPS
+    lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+    lammpsRun.wait()
+    exitErr = lammpsRun.stderr.read().decode()
+    print('LAMMPS exited with stderr: '+exitErr)
+
+# LAMMPS n2p2 and VASP loop. Executed as far as LAMMPS exits with stderr 50
 while True:
     if re.match('^50', exitErr): #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
         interfaceVASP.compute(lasp2['exec'], trainings, lasp2['numprocs'])
         print('Performing NNP training             Iteration: '+str(trainings))
-        interfaceN2P2.training(lasp2['exec'], potDirs, trainings, lasp2['numseeds'], lasp2['numprocs'])
+        interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
         trainings += 1
-        lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lasp2_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
-    else:
+    else: #If stderr is different then exit the loop
         break
+
+# Merge internal LAMMPS dump files
 if not re.match('^50', exitErr):
     print('LAMMPS interface exited successfully')
-    if trainings != 1:
+    if trainings != 1: #If there is more than one then merge them
         merge(trainings, 'Restart/dump*.lammpstrj', 'Restart/dumpComplete.lammpstrj')
-    else:
+    else: #Else, just copy the only file and name it dumpComplete.lammpstrj
         os.system('cp Restart/dump1.lammpstrj Restart/dumpComplete.lammpstrj')

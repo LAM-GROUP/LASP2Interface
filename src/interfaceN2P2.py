@@ -3,8 +3,12 @@ import os
 import configparser
 
 epochs = 100
+binScaling = 'nnp-scaling'
+binTraining = 'nnp-train'
 def readN2P2(inputFile):
     global epochs
+    global binScaling
+    global binTraining
     # Read input data for the interface
     config = configparser.ConfigParser()
     config.read(inputFile)
@@ -16,6 +20,25 @@ def readN2P2(inputFile):
             except:
                 print('Invalid value for variable: ' +key)
                 exit(1)
+        if key == 'binscaling':
+            try:
+                binScaling = str(vars[key])
+                # if not os.path.isfile(binVasp):
+                #     print('Binary file for VASP could not be found: '+binVasp)
+                #     raise Exception('File error')
+            except:
+                print('Invalid value for variable: ' + key)
+        if key == 'bintraining':
+            try:
+                binTraining = str(vars[key])
+                # if not os.path.isfile(binVasp):
+                #     print('Binary file for VASP could not be found: '+binVasp)
+                #     raise Exception('File error')
+            except:
+                print('Invalid value for variable: ' +key)
+        else:
+            print('Invalid variable: '+key)
+            exit(1)
 
 def convert(inputFile, outputFile):
     # n2p2 - A neural network potential package
@@ -111,12 +134,12 @@ def convert(inputFile, outputFile):
         f.write("charge {0:s}\n".format("0.0"))
         f.write("end\n")
 
-def training(exec, potLoc, trainingNum, numSeeds, numprocs):
+def training(exec, trainingNum, numSeeds, numprocs):
     # Convert OUTCAR file to n2p2 data
     convert('DFT/dft'+str(trainingNum)+'/OUTCAR', 'Training/train.data')
 
     n = numprocs
-    pathTrain = potLoc+'nnp'+str(trainingNum)
+    pathTrain = 'Training/nnp'+str(trainingNum)
     os.makedirs(pathTrain, exist_ok=True)
     os.system('cat Training/complete'+str(trainingNum-1)+'.data Training/train.data > Training/complete'+str(trainingNum)+'.data')
     for i in range(1, numSeeds+1):
@@ -144,12 +167,12 @@ def training(exec, potLoc, trainingNum, numSeeds, numprocs):
         structures = int(os.popen("grep -c '^begin' input.data").read()[:-1])
         if structures < numprocs:
             n = structures
-        os.system(exec+' -n '+str(n)+' nnp-scaling 5000 > out-scaling.txt')
-        os.system(exec+' -n '+str(n)+' nnp-train > out-train.txt')
+        os.system(exec+' -n '+str(n)+' '+binScaling+' 5000 > out-scaling.txt')
+        os.system(exec+' -n '+str(n)+' '+binTraining+' > out-train.txt')
         os.chdir('../../..')
 
         # Copy last epochs of the training to the Potentials folder
-        os.system('cp '+pathTrain+'/Seed'+str(i)+'/weights.079.{:06d}'.format(numEpochs)+'.out '+potLoc+'Potentials/Seed'+str(i)+'/weights.079.data')
-        os.system('cp '+pathTrain+'/Seed'+str(i)+'/input.nn '+potLoc+'Potentials/Seed'+str(i)+'/')
-        os.system('cp '+pathTrain+'/Seed'+str(i)+'/scaling.data '+potLoc+'Potentials/Seed'+str(i)+'/')
-        os.system('cp '+pathTrain+'/Seed'+str(i)+'/nnp-train.log.0000 '+potLoc+'Potentials/Seed'+str(i)+'/')
+        os.system('cp '+pathTrain+'/Seed'+str(i)+'/weights.079.{:06d}'.format(numEpochs)+'.out Training/Potentials/Seed'+str(i)+'/weights.079.data')
+        os.system('cp '+pathTrain+'/Seed'+str(i)+'/input.nn Training/Potentials/Seed'+str(i)+'/')
+        os.system('cp '+pathTrain+'/Seed'+str(i)+'/scaling.data Training/Potentials/Seed'+str(i)+'/')
+        os.system('cp '+pathTrain+'/Seed'+str(i)+'/nnp-train.log.0000 Training/Potentials/Seed'+str(i)+'/')

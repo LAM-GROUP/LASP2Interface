@@ -7,6 +7,7 @@ binVasp = 'vasp_std'
 elements = []
 def readVASP(inputFile):
     global binVasp
+    global elements
     # Read input data for the interface
     config = configparser.ConfigParser()
     config.read(inputFile)
@@ -20,15 +21,14 @@ def readVASP(inputFile):
                 #     raise Exception('File error')
             except:
                 print('Invalid value for variable: ' +key)
-        if key == 'elements':
+        elif key == 'elements':
             try:
                 elements = vars[key].split()
             except:
                 print('Invalid value for variable: ' +key)
-
-def setup_particle_types(frame, data):
-    types = data.particles_.particle_types_
-    types.type_by_id_(1).name = 'Au'
+        else:
+            print('Invalid variable: '+key)
+            exit(1)
 
 def compute(exec, training, numprocs):
     # Convert lammps data file to POSCAR file
