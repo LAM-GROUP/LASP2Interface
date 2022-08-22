@@ -43,6 +43,8 @@ def compute(exec, training, numprocs):
     
     #Count lammps types and assign elements
     ids = list(lammps.get_atomic_numbers()).sort()
+    print('Atomic numbers are:')
+    print(ids)
     amounts = []
     t = ids[0]
     count = 0
