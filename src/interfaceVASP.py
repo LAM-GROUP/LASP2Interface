@@ -42,7 +42,7 @@ def compute(exec, training, numprocs):
     lammps = lammpsdata.read_lammps_data('Restart/check.data',  style='atomic')
     
     #Count lammps types and assign elements
-    ids = lammps.get_atomic_numbers().sort()
+    ids = list(lammps.get_atomic_numbers()).sort()
     amounts = []
     t = ids[0]
     count = 0
