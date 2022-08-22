@@ -54,6 +54,7 @@ def compute(exec, training, numprocs):
                 count = 1
                 t = ids[i]
     amounts.append(count)
+    print(ids)
     print(amounts)
     print(elements)
     if len(amounts) != len(elements):
