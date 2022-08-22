@@ -174,7 +174,8 @@ def training(exec, trainingNum, numSeeds, numprocs):
         os.makedirs(pathTrain+'/Seed'+str(i), exist_ok=True)
         os.system('cp Training/Potentials/Seed'+str(i)+'/input.nn '+pathTrain+'/Seed'+str(i)+'/')
         os.system('cp Training/complete'+str(trainingNum)+'.data '+pathTrain+'/Seed'+str(i)+'/input.data')
-        os.system('cp Training/Potentials/Seed'+str(i)+'/weights.079.data '+pathTrain+'/Seed'+str(i)+'/')
+        for num in elementNums:
+            os.system('cp Training/Potentials/Seed'+str(i)+'/weights.{:03d}.data '.format(num)+pathTrain+'/Seed'+str(i)+'/')
         os.chdir(pathTrain+'/Seed'+str(i))
         # Change number of epochs if it is defined
         epochsLine = os.popen("grep '^epochs' input.nn").read()[:-1]
