@@ -54,6 +54,8 @@ def compute(exec, training, numprocs):
                 count = 1
                 t = ids[i]
     amounts.append(count)
+    print(amounts)
+    print(elements)
     if len(amounts) != len(elements):
         print('Number of elements is not the same than number of types in LAMMPS')
         sys.exit(1)
