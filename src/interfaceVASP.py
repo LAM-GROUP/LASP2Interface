@@ -42,7 +42,8 @@ def compute(exec, training, numprocs):
     lammps = lammpsdata.read_lammps_data('Restart/check.data',  style='atomic')
     
     #Count lammps types and assign elements
-    ids = list(lammps.get_atomic_numbers()).sort()
+    ids = lammps.get_atomic_numbers()
+    ids.sort()
     print('Atomic numbers are:')
     print(ids)
     amounts = []
