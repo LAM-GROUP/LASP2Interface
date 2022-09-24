@@ -1,4 +1,4 @@
-from genericpath import isdir
+from genericpath import isdir, isfile
 import os
 import sys
 from sys import exit
@@ -149,14 +149,37 @@ potInitial = lasp2['dirpotentials']
 
 if restart:
     print('Simulation is being restarted')
+    if not os.path.isfile('Restart/sections.out'): #If file does not exist print error message and exit
+        print('Restarting Error: "sections.out" file could not be found in the "Restart" directory. Restarting point could not be read.')
+        exit(1)
+    # Else, read it and find starting point
     sections = sectionsParser.load('Restart/sections.out')
     trainings = len(sections)
     if os.path.isdir('Training/nnp'+str(trainings)): #If this directory exists DFT finished successfully
         print('DFT calculation was performed before')
-        if os.path.isfile('lammps_'+str(trainings)+'.out'):
-            print('Training was performed')
+        if os.path.isfile('lammps_'+str(trainings+1)+'.out'):
+            print('Training was performed before')
+            print('LAMMPS simulation needs to be restarted')
+            os.remove('lammps_'+str(trainings+1)+'.out') #Deleting previous LAMMPS simulation that was not finished
+            trainings += 1
+            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+            lammpsRun.wait()
+            exitErr = lammpsRun.stderr.read().decode()
+        else:
+            #Restarting from the training
+            print('Training needs to be restarted')
+            os.remove('Training/nnp'+str(trainings)) #Deleting previous training that was not finished
+            print('Performing NNP training             Iteration: '+str(trainings))
+            interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
+            trainings += 1
+            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+            lammpsRun.wait()
+            exitErr = lammpsRun.stderr.read().decode()
     else:
-        if os.path.isdir('DFT/dft'+str(trainings)): #If this directory exists lammps finished successfully
+        if os.path.isdir('DFT/dft'+str(trainings)): #If DFT directory exists, but training does not, DFT must be restarted.
+            #Restarting from DFT
+            print('DFT calculation needs to be restarted')
+            os.remove('DFT/dft'+str(trainings)) #Deleting previous DFT calculation that was not finished
             print('Performing DFT calculations         Iteration: '+str(trainings))
             interfaceVASP.compute(lasp2['exec'], trainings, lasp2['numprocs'])
             print('Performing NNP training             Iteration: '+str(trainings))
@@ -165,11 +188,10 @@ if restart:
             lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
-        else: #If not, then lammps must be rerun for trainings+1
-            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
-            lammpsRun.wait()
-            exitErr = lammpsRun.stderr.read().decode()
-else:
+        else: #If DFT directory does not exist, simulation might have finished (COULD ADD A CHECK TO KNOW IF IT FINISHED)
+            print('Simulation has been finished. Restart unsuccessful')
+            exit(1)
+else: # Default starting point
     print('LASP2 simulation starting')
     os.makedirs('Training/', exist_ok=True)
     os.makedirs('Restart', exist_ok=True)
@@ -182,7 +204,7 @@ else:
     exitErr = lammpsRun.stderr.read().decode()
     print('LAMMPS exited with stderr: '+exitErr)
 
-# LAMMPS n2p2 and VASP loop. Executed as far as LAMMPS exits with stderr 50
+# LAMMPS, n2p2 and VASP loop. Executed as far as LAMMPS exits with stderr 50
 while True:
     if re.match('^50', exitErr): #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
