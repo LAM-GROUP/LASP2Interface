@@ -11,6 +11,7 @@ import ase
 import time
 import interfaceN2P2
 import interfaceVASP
+import shutil
 from dumpMerger import merge
 
 class Unbuffered(object):
@@ -168,7 +169,7 @@ if restart:
         else:
             #Restarting from the training
             print('Training needs to be restarted')
-            os.remove('Training/nnp'+str(trainings)) #Deleting previous training that was not finished
+            shutil.rmtree('Training/nnp'+str(trainings)) #Deleting previous training that was not finished
             print('Performing NNP training             Iteration: '+str(trainings))
             interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
             trainings += 1
@@ -179,7 +180,7 @@ if restart:
         if os.path.isdir('DFT/dft'+str(trainings)): #If DFT directory exists, but training does not, DFT must be restarted.
             #Restarting from DFT
             print('DFT calculation needs to be restarted')
-            os.remove('DFT/dft'+str(trainings)) #Deleting previous DFT calculation that was not finished
+            shutil.rmtree('DFT/dft'+str(trainings)) #Deleting previous DFT calculation that was not finished
             print('Performing DFT calculations         Iteration: '+str(trainings))
             interfaceVASP.compute(lasp2['exec'], trainings, lasp2['numprocs'])
             print('Performing NNP training             Iteration: '+str(trainings))

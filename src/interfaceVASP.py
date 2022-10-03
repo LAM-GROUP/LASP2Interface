@@ -44,8 +44,6 @@ def compute(exec, training, numprocs):
     #Count lammps types and assign elements
     ids = lammps.get_atomic_numbers()
     ids.sort()
-    print('Atomic numbers are:')
-    print(ids)
     amounts = []
     t = ids[0]
     count = 0
@@ -57,9 +55,6 @@ def compute(exec, training, numprocs):
                 count = 1
                 t = ids[i]
     amounts.append(count)
-    print(ids)
-    print(amounts)
-    print(elements)
     if len(amounts) != len(elements):
         print('Number of elements is not the same than number of types in LAMMPS')
         sys.exit(1)
