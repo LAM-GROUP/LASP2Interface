@@ -163,6 +163,7 @@ if restart:
             print('LAMMPS simulation needs to be restarted')
             os.remove('lammps_'+str(trainings+1)+'.out') #Deleting previous LAMMPS simulation that was not finished
             trainings += 1
+            print('Performing LAMMPS simulation        Iteration: '+str(trainings))
             lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
@@ -174,6 +175,7 @@ if restart:
             print('Performing NNP training             Iteration: '+str(trainings))
             interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
             trainings += 1
+            print('Performing LAMMPS simulation        Iteration: '+str(trainings))
             lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
@@ -188,6 +190,7 @@ if restart:
             print('Performing NNP training             Iteration: '+str(trainings))
             interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
             trainings += 1
+            print('Performing LAMMPS simulation        Iteration: '+str(trainings))
             lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
@@ -203,6 +206,7 @@ else: # Default starting point
     os.system('cp '+lasp2['dirdatabase']+' Training/complete0.data')
     trainings = 1
     # Begin running LAMMPS
+    print('Performing LAMMPS simulation        Iteration: '+str(trainings))
     lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
     lammpsRun.wait()
     exitErr = lammpsRun.stderr.read().decode()
@@ -216,6 +220,7 @@ while True:
         print('Performing NNP training             Iteration: '+str(trainings))
         interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
         trainings += 1
+        print('Performing LAMMPS simulation        Iteration: '+str(trainings))
         lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
