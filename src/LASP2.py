@@ -166,6 +166,7 @@ if restart:
             lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
+            print('LAMMPS exited with stderr: '+exitErr)
         else:
             #Restarting from the training
             print('Training needs to be restarted')
@@ -176,6 +177,7 @@ if restart:
             lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
+            print('LAMMPS exited with stderr: '+exitErr)
     else:
         if os.path.isdir('DFT/dft'+str(trainings)): #If DFT directory exists, but training does not, DFT must be restarted.
             #Restarting from DFT
@@ -189,6 +191,7 @@ if restart:
             lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
+            print('LAMMPS exited with stderr: '+exitErr)
         else: #If DFT directory does not exist, simulation might have finished (COULD ADD A CHECK TO KNOW IF IT FINISHED)
             print('Simulation has been finished. Restart unsuccessful')
             exit(1)
@@ -216,6 +219,7 @@ while True:
         lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
+        print('LAMMPS exited with stderr: '+exitErr)
     else: #If stderr is different then exit the loop
         break
 
