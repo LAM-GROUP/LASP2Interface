@@ -153,7 +153,7 @@ for i in range(len(sys.argv)):
         restart = True
     if sys.argv[i] == '--plot':
         print('Plotting sections')
-        lammpsPlot = Popen(dirInterface+' --plot', shell=True, stderr=subprocess.PIPE)
+        lammpsPlot = Popen(dirInterface+' --plot', shell=True)
         lammpsPlot.wait()
         exit()
 
