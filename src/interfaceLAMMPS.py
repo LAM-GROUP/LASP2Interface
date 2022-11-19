@@ -274,12 +274,12 @@ for i in range(len(sys.argv)):
         except:
             print('Sections file not found under Restart directory')
             print('Trying to read in  working directory...')
-        try:
-            sections = sectionsParser.load('sections.out')
-        except:
-            print('Sections file not found')
-            print('Exiting ...')
-            exit()
+            try:
+                sections = sectionsParser.load('sections.out')
+            except:
+                print('Sections file not found')
+                print('Exiting ...')
+                exit()
         plot()
         exit()
 
