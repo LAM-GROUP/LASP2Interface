@@ -229,6 +229,57 @@ def restart():
     lmp.command('dump              dumpInternalLASP2 all custom '+str(checkEvery)+' Restart/dump${iteration}.lammpstrj id type x y z fx fy fz')
     lmp.command('dump_modify    	  dumpInternalLASP2 sort id')
 
+def plot():
+    def hex_to_RGB(hex_str):
+        """ #FFFFFF -> [255,255,255]"""
+        #Pass 16 to the integer function for change of base
+        return [int(hex_str[i:i+2], 16) for i in range(1, 6, 2)]
+    def get_color_gradient(c1, c2, n):
+        """
+        Given two hex colors, returns a color gradient
+        with n colors.
+        """
+        if n > 1:
+            c1_rgb = np.array(hex_to_RGB(c1))/255
+            c2_rgb = np.array(hex_to_RGB(c2))/255
+            mix_pcts = [x/(n-1) for x in range(n)]
+            rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
+            return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
+        elif n == 1:
+            return [c1]
+
+    plt.rcParams["axes.prop_cycle"] = plt.cycler("color", plt.cm.Dark2.colors)
+    fig, ax1 = plt.subplots()
+
+    ax1.set_yscale('log')
+    ax1.set_title(simName)
+    ax1.set_ylabel('Dispersion')
+    ax1.set_xlabel('Timestep')
+
+    colors = get_color_gradient("#FF0000", "#0000FF", len(sections))
+    for i in range(len(sections)):
+        ax1.plot(sections[i][0], sections[i][1], c=colors[i], marker='o', ls=':')
+    ax1.axhline(threshold, ls='--', color='black')
+
+    fig.savefig('simulationDispersion.png')
+
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '--plot':
+        threshold = lammpsConf['threshold']
+        try:
+            sections = sectionsParser.load('Restart/sections.out')
+        except:
+            print('Sections file not found under Restart directory')
+            print('Trying to read in  working directory...')
+        try:
+            sections = sectionsParser.load('sections.out')
+        except:
+            print('Sections file not found')
+            print('Exiting ...')
+            exit()
+        plot()
+        exit()
+
 # MPI variables and set COMM_WORLD as communicator
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -288,37 +339,7 @@ if rank == 0:
 
 # Plotting dispersion over time (Only on rank 0)
 if rank == 0:
-    def hex_to_RGB(hex_str):
-        """ #FFFFFF -> [255,255,255]"""
-        #Pass 16 to the integer function for change of base
-        return [int(hex_str[i:i+2], 16) for i in range(1, 6, 2)]
-    def get_color_gradient(c1, c2, n):
-        """
-        Given two hex colors, returns a color gradient
-        with n colors.
-        """
-        if n > 1:
-            c1_rgb = np.array(hex_to_RGB(c1))/255
-            c2_rgb = np.array(hex_to_RGB(c2))/255
-            mix_pcts = [x/(n-1) for x in range(n)]
-            rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
-            return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
-        elif n == 1:
-            return [c1]
-
-    plt.rcParams["axes.prop_cycle"] = plt.cycler("color", plt.cm.Dark2.colors)
-    fig, ax1 = plt.subplots()
-
-    ax1.set_title(simName)
-    ax1.set_ylabel('Dispersion')
-    ax1.set_xlabel('Timestep')
-
-    colors = get_color_gradient("#FF0000", "#0000FF", len(sections))
-    for i in range(len(sections)):
-        ax1.plot(sections[i][0], sections[i][1], c=colors[i], marker='o', ls=':')
-    ax1.axhline(threshold, ls='--', color='black')
-
-    fig.savefig('simulationDispersion.png')
+    plot()
     print('Simulation Completed')
 
 # End of the program

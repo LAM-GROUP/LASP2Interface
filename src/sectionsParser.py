@@ -2,7 +2,7 @@ import os
 import errno
 import re
 
-def load(fileName='Restart/sections.npy'):
+def load(fileName='Restart/sections.out'):
     if not os.path.isfile(fileName):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), fileName)
         return

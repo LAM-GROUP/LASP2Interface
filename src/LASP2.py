@@ -1,5 +1,5 @@
-from genericpath import isdir, isfile
 import os
+from os.path import isdir, isfile
 import sys
 from sys import exit
 import subprocess
@@ -32,6 +32,9 @@ def readLASP2():
     global lasp2
     vars = config['LASP2']
     lasp2['simname'] = 'LASP2 Simulation'
+    lasp2['procslammps'] = 0
+    lasp2['procsn2p2'] = 0
+    lasp2['procsvasp'] = 0
     for key in vars:
         if key == 'simname':
             try:
@@ -46,6 +49,24 @@ def readLASP2():
                 print('Invalid value for variable: ' +key)
                 exit(1)
         elif key == 'numprocs':
+            try:
+                lasp2[key] = int(vars[key])
+            except:
+                print('Invalid value for variable: ' + key)
+                exit(1)
+        elif key == 'procslammps':
+            try:
+                lasp2[key] = int(vars[key])
+            except:
+                print('Invalid value for variable: ' + key)
+                exit(1)
+        elif key == 'procsn2p2':
+            try:
+                lasp2[key] = int(vars[key])
+            except:
+                print('Invalid value for variable: ' + key)
+                exit(1)
+        elif key == 'procsvasp':
             try:
                 lasp2[key] = int(vars[key])
             except:
@@ -81,6 +102,13 @@ def readLASP2():
         else:
             print('Invalid variable: '+key)
             exit(1)
+    #If number of processors for lammps, n2p2 or vasp was not overwritten use the general number
+    if lasp2['procslammps'] == 0:
+        lasp2['procslammps'] = lasp2['numprocs']
+    if lasp2['procsn2p2'] == 0:
+        lasp2['procsn2p2'] = lasp2['numprocs']
+    if lasp2['procsvasp'] == 0:
+        lasp2['procsvasp'] = lasp2['numprocs']
 
 # Read input from lasp2.ini or another file indicated by the user
 inputFile = 'lasp2.ini'
@@ -123,6 +151,11 @@ for i in range(len(sys.argv)):
         exit()
     if sys.argv[i] == '--restart':
         restart = True
+    if sys.argv[i] == '--plot':
+        print('Plotting sections')
+        lammpsPlot = Popen(dirInterface+' --plot', shell=True, stderr=subprocess.PIPE)
+        lammpsPlot.wait()
+        exit()
 
 # Dictionary where configuration variables will be stored
 lasp2 = dict()
@@ -164,7 +197,7 @@ if restart:
             os.remove('lammps_'+str(trainings+1)+'.out') #Deleting previous LAMMPS simulation that was not finished
             trainings += 1
             print('Performing LAMMPS simulation        Iteration: '+str(trainings))
-            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['procslammps'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
             print('LAMMPS exited with stderr: '+exitErr)
@@ -173,10 +206,10 @@ if restart:
             print('Training needs to be restarted')
             shutil.rmtree('Training/nnp'+str(trainings)) #Deleting previous training that was not finished
             print('Performing NNP training             Iteration: '+str(trainings))
-            interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
+            interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['procsn2p2'])
             trainings += 1
             print('Performing LAMMPS simulation        Iteration: '+str(trainings))
-            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['procslammps'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
             print('LAMMPS exited with stderr: '+exitErr)
@@ -186,12 +219,12 @@ if restart:
             print('DFT calculation needs to be restarted')
             shutil.rmtree('DFT/dft'+str(trainings)) #Deleting previous DFT calculation that was not finished
             print('Performing DFT calculations         Iteration: '+str(trainings))
-            interfaceVASP.compute(lasp2['exec'], trainings, lasp2['numprocs'])
+            interfaceVASP.compute(lasp2['exec'], trainings, lasp2['procsvasp'])
             print('Performing NNP training             Iteration: '+str(trainings))
-            interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
+            interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['procsn2p2'])
             trainings += 1
             print('Performing LAMMPS simulation        Iteration: '+str(trainings))
-            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+            lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['procslammps'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
             lammpsRun.wait()
             exitErr = lammpsRun.stderr.read().decode()
             print('LAMMPS exited with stderr: '+exitErr)
@@ -207,7 +240,7 @@ else: # Default starting point
     trainings = 1
     # Begin running LAMMPS
     print('Performing LAMMPS simulation        Iteration: '+str(trainings))
-    lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+    lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['procslammps'])+' '+dirInterface+' --start -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
     lammpsRun.wait()
     exitErr = lammpsRun.stderr.read().decode()
     print('LAMMPS exited with stderr: '+exitErr)
@@ -216,12 +249,12 @@ else: # Default starting point
 while True:
     if re.match('^50', exitErr): #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
-        interfaceVASP.compute(lasp2['exec'], trainings, lasp2['numprocs'])
+        interfaceVASP.compute(lasp2['exec'], trainings, lasp2['procsvasp'])
         print('Performing NNP training             Iteration: '+str(trainings))
-        interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['numprocs'])
+        interfaceN2P2.training(lasp2['exec'], trainings, lasp2['numseeds'], lasp2['procsn2p2'])
         trainings += 1
         print('Performing LAMMPS simulation        Iteration: '+str(trainings))
-        lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['numprocs'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
+        lammpsRun = Popen(lasp2['exec']+' -n '+str(lasp2['procslammps'])+' '+dirInterface+' --restart -config '+inputFile+' -iteration '+str(trainings)+' > lammps_'+str(trainings)+'.out', shell=True, stderr=subprocess.PIPE)
         lammpsRun.wait()
         exitErr = lammpsRun.stderr.read().decode()
         print('LAMMPS exited with stderr: '+exitErr)
