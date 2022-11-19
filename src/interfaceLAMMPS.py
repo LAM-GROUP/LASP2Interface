@@ -262,11 +262,14 @@ def plot():
     ax1.axhline(threshold, ls='--', color='black')
 
     fig.savefig('simulationDispersion.png')
+    print('Image saved... "simulationDispersion.png"')
 
 for i in range(len(sys.argv)):
     if sys.argv[i] == '--plot':
+        print('...')
         threshold = lammpsConf['threshold']
         try:
+            print('Reading "Restart/sections.out"')
             sections = sectionsParser.load('Restart/sections.out')
         except:
             print('Sections file not found under Restart directory')
