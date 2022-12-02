@@ -127,6 +127,8 @@ sys.stdout = Unbuffered(sys.stdout)
 # Function to measure the agreement between the different potentials
 def check(iteration):
     """Check dispersion by measuring forces with different potentials"""
+    if rank == 0:
+        print('---- Proceeding to measure dispersion')
     disag = 0.0
     # Dispersion measurement loop
     seeds = [None]*numSeeds
@@ -154,12 +156,15 @@ def check(iteration):
         deviationMax = 0.0
     # MPI process communication
     if rank == 0: #If this is the main thread, wait for other threads to send their maximum standard deviation
-        forceNodes = []
-        forceNodes.append(deviationMax)
-        for s in range(1, nprocs):
-            message = comm.recv(source=s, tag=s)
-            forceNodes.append(message)
-        disag = max(forceNodes) #Get the maximum of the standard deviations obtained by each MPI process
+        if nprocs > 1: #If it is running in mpi mode
+            forceNodes = []
+            forceNodes.append(deviationMax)
+            for s in range(1, nprocs):
+                message = comm.recv(source=s, tag=s)
+                forceNodes.append(message)
+            disag = max(forceNodes) #Get the maximum of the standard deviations obtained by each MPI process
+        else: #If this is the only process then use the standard deviation from this one
+            disag = deviationMax
     else: #If this is not the main thread send a message to the main thread with the max standard deviation
         comm.send(deviationMax, dest=0, tag=rank)
         # Wait for message to know that it is ok to continue
@@ -171,6 +176,7 @@ def check(iteration):
     if rank == 0:
         dispersion[0].append(iteration*checkEvery)
         dispersion[1].append(disag)
+        print()
         print('############ LASP2 #############')
         print('step                  dispersion')
         print(str(iteration*checkEvery)+'        '+str(disag))
@@ -185,8 +191,10 @@ def check(iteration):
             # Dispersion is too high
             # DFT calculations will be performed and potentials will be trained
         print('################################')
-        for i in range(1, nprocs):
-            comm.send(message, dest=i, tag=i)
+        print()
+        if nprocs > 1:
+            for i in range(1, nprocs):
+                comm.send(message, dest=i, tag=i)
         if disag > threshold:
             sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
             print('50', file=sys.stderr)
@@ -214,9 +222,10 @@ def restart():
         startPoint = int(sections[-1][0][-1] / checkEvery) - 1
         if startPoint < 0:
             startPoint = 0
-        # Send starting steps to the other processes
-        for i in range(1, nprocs):
-            comm.send(startPoint, dest=i, tag=i)
+        if nprocs > 1:
+            # Send starting steps to the other processes
+            for i in range(1, nprocs):
+                comm.send(startPoint, dest=i, tag=i)
     else: #Other processes wait to receive the starting step
         startPoint = comm.recv(source = 0, tag = rank)
 
