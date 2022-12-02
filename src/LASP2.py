@@ -247,7 +247,7 @@ else: # Default starting point
 
 # LAMMPS, n2p2 and VASP loop. Executed as far as LAMMPS exits with stderr 50
 while True:
-    if re.match('^50', exitErr): #Exit code returned when the flag for training is activated
+    if '(Dispersion is greater than threshold. Code:50)' in exitErr: #Exit code returned when the flag for training is activated
         print('Performing DFT calculations         Iteration: '+str(trainings))
         interfaceVASP.compute(lasp2['exec'], trainings, lasp2['procsvasp'])
         print('Performing NNP training             Iteration: '+str(trainings))
@@ -262,7 +262,7 @@ while True:
         break
 
 # Merge internal LAMMPS dump files
-if not re.match('^50', exitErr):
+if not '(Dispersion is greater than threshold. Code:50)' in exitErr:
     print('LAMMPS interface exited successfully')
     if trainings != 1: #If there is more than one then merge them
         merge(trainings, 'Restart/dump*.lammpstrj', 'Restart/dumpComplete.lammpstrj')

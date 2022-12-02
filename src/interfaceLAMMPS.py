@@ -197,7 +197,7 @@ def check(iteration):
                 comm.send(message, dest=i, tag=i)
         if disag > threshold:
             sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
-            print('50', file=sys.stderr)
+            print('(Dispersion is greater than threshold. Code:50)', file=sys.stderr)
             MPI.Finalize()
             exit()
     return disag
@@ -349,9 +349,12 @@ if rank == 0:
     sections.append(dispersion.copy())
     sectionsParser.save(sections, 'Restart/sections.out', threshold=str(threshold), totalSteps=str(totalSteps), checkEvery=str(checkEvery))
 
+print('(LAMMPS simulation finished successfully. Code:0)', file=sys.stderr)
+
 # Plotting dispersion over time (Only on rank 0)
 if rank == 0:
     plot()
+    print('Plot has been prodduced', file=sys.stderr)
     print('Simulation Completed')
 
 # End of the program
