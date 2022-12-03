@@ -174,8 +174,8 @@ def training(exec, trainingNum, numSeeds, numprocs):
         os.makedirs(pathTrain+'/Seed'+str(i), exist_ok=True)
         os.system('cp Training/Potentials/Seed'+str(i)+'/input.nn '+pathTrain+'/Seed'+str(i)+'/')
         os.system('cp Training/complete'+str(trainingNum)+'.data '+pathTrain+'/Seed'+str(i)+'/input.data')
-        for num in elementNums:
-            os.system('cp Training/Potentials/Seed'+str(i)+'/weights.{:03d}.data '.format(num)+pathTrain+'/Seed'+str(i)+'/')
+        # for num in elementNums: # Copy previous weights for "use_old_weights_short" (disabled for now)
+        #     os.system('cp Training/Potentials/Seed'+str(i)+'/weights.{:03d}.data '.format(num)+pathTrain+'/Seed'+str(i)+'/')
         os.chdir(pathTrain+'/Seed'+str(i))
         # Change number of epochs if it is defined
         epochsLine = os.popen("grep '^epochs' input.nn").read()[:-1]
@@ -189,10 +189,10 @@ def training(exec, trainingNum, numSeeds, numprocs):
         testFraction = testLine.split()[1]
         testReplace = testLine.replace(str(testFraction), str(0.0))
         os.system("sed -i 's/"+testLine+"/"+testReplace+"/g' input.nn")
-        # Add option to use old weights
-        # Check if it has been added before
-        if os.popen("grep '^use_old_weights_short' input.nn").read() == '':
-            os.system("sed -i '/^elements/ a use_old_weights_short             # Start the simulation using previous weights' input.nn")
+        # # Add option to use old weights (disabled for now)
+        # # Check if it has been added before
+        # if os.popen("grep '^use_old_weights_short' input.nn").read() == '':
+        #     os.system("sed -i '/^elements/ a use_old_weights_short             # Start the simulation using previous weights' input.nn")
         structures = int(os.popen("grep -c '^begin' input.data").read()[:-1])
         if structures < numprocs:
             n = structures
